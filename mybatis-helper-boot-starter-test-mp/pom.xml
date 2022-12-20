@@ -12,6 +12,12 @@
     <artifactId>mybatis-helper-boot-starter-test-mp</artifactId>
     <description>测试mybatis-helper(mybatis-plus)</description>
 
+    <properties>
+        <!-- 不需要deploy此模块 -->
+        <maven.deploy.skip>true</maven.deploy.skip>
+        <maven.install.skip>true</maven.install.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.github.xuwulin</groupId>
