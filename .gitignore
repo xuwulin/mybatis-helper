@@ -1,0 +1,4 @@
+# Project exclude paths
+/mybatis-helper-boot-starter/target/
+/mybatis-helper-boot-starter-test/target/
+/mybatis-helper-boot-starter-test-mp/target/

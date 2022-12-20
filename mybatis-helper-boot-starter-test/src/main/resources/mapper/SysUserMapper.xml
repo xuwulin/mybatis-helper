@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xwl.mybatishelper.test.mapper.SysUserMapper">
+    <insert id="save">
+        INSERT INTO sys_user (id, account, username, id_number, password)
+        VALUE (#{user.id}, #{user.account}, #{user.username}, #{user.idNumber}, #{user.password});
+    </insert>
+
+    <update id="update">
+        UPDATE sys_user SET id_number = #{vo.idNumber} WHERE account = #{vo.account}
+    </update>
+
+    <select id="list" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+        SELECT * FROM sys_user
+    </select>
+
+    <select id="getBy" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+        SELECT * FROM sys_user WHERE username = #{enc_username} AND id_number = #{enc_idNumber}
+    </select>
+
+    <select id="getVo" resultType="com.xwl.mybatishelper.test.vo.OutVO">
+        SELECT * FROM sys_user WHERE username = #{vo.username} AND id_number = #{vo.idNumber}
+    </select>
+
+    <select id="join" resultType="com.xwl.mybatishelper.test.vo.OutVO">
+        SELECT * FROM sys_user u
+        JOIN sys_dept d ON u.dept_id = d.id
+        WHERE d.id = #{deptId}
+    </select>
+</mapper>

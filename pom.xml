@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.xwl</groupId>
+    <artifactId>mybatis-helper</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>mybatis-helper</name>
+    <description>mybatis插件：提供存取加解密、脱敏等功能</description>
+    <url>https://github.com/xuwulin/mybatis-helper</url>
+    <inceptionYear>2022</inceptionYear>
+
+    <modules>
+        <module>mybatis-helper-boot-starter</module>
+        <module>mybatis-helper-boot-starter-test</module>
+        <module>mybatis-helper-boot-starter-test-mp</module>
+    </modules>
+
+    <!-- 开发者 -->
+    <developers>
+        <developer>
+            <name>xuwulin</name>
+            <email>978100228@qq.com</email>
+            <roles>
+                <role>Project Manager</role>
+                <role>Architect</role>
+            </roles>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+
+    <!-- 开源版权信息 -->
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <!-- scm配置，具体路径为待打包代码分支的根路径(trunk、branckes/v1.1.x、/tags/v1.1.5等) -->
+    <scm>
+        <!-- 用于发布的链接：git地址可以用SSH，也可以用HTTPS的-->
+        <connection>scm:git:https://github.com/xuwulin/mybatis-helper.git</connection>
+        <!-- 用于指定开发者的链接，git地址可以用SSH，也可以用HTTPS的-->
+        <developerConnection>scm:git:https://github.com/xuwulin/mybatis-helper.git</developerConnection>
+        <!-- git项目地址 -->
+        <url>https://github.com/xuwulin/mybatis-helper</url>
+    </scm>
+
+    <!-- 统一管理依赖版本 -->
+    <properties>
+        <!-- java编译版本 -->
+        <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- 字符编码集 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- 依赖版本 -->
+        <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
+        <mybatis.version>3.5.9</mybatis.version>
+        <mybatis-boot.version>2.2.2</mybatis-boot.version>
+        <mybatis-plus.version>3.5.2</mybatis-plus.version>
+        <hutool.version>5.8.10</hutool.version>
+        <bouncycastle.version>1.72</bouncycastle.version>
+        <pagehelper-boot.version>1.4.1</pagehelper-boot.version>
+        <mysql.version>8.0.25</mysql.version>
+
+        <!-- maven plugins -->
+        <compiler-plugin.version>3.5.1</compiler-plugin.version>
+        <maven-deploy-plugin.version>2.7</maven-deploy-plugin.version>
+        <source-plugin.version>2.2.1</source-plugin.version>
+        <javadoc-plugin.version>2.9.1</javadoc-plugin.version>
+        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+        <versions-maven-plugin.version>2.3</versions-maven-plugin.version>
+    </properties>
+
+    <!-- 依赖管理 -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.xwl</groupId>
+                <artifactId>mybatis-helper-boot-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- spring boot -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis</artifactId>
+                <version>${mybatis.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis-boot.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper-boot.version}</version>
+            </dependency>
+
+            <!-- 加解密使用 -->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+
+            <!-- 加解密使用 -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15to18</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- maven依赖仓库 -->
+    <repositories>
+        <!-- 使用aliyun的Maven源，提升下载速度 -->
+        <repository>
+            <id>aliyunmaven</id>
+            <name>aliyun</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <!-- 从远程仓库引入release版本，不引入snapshots版本 -->
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+        <!-- 公司地址 -->
+        <repository>
+            <id>central</id>
+            <url>http://10.10.50.246:8081/repository/maven-public</url>
+        </repository>
+    </repositories>
+
+    <!-- maven插件仓库 -->
+    <pluginRepositories>
+        <!-- 使用aliyun的Maven源，提升下载速度 -->
+        <pluginRepository>
+            <id>aliyun-plugin</id>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+
+        <!-- 公司maven仓库地址 -->
+        <pluginRepository>
+            <id>central</id>
+            <url>http://10.10.50.246:8081/repository/maven-public</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <!-- 使用Maven的profile（配置不同的环境，比如：开发环境、测试环境、发布环境）功能，只有在release的时候才创建源码包、文档包、使用GPG进行数字签名。 -->
+    <profiles>
+        <!-- 开发环境 -->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <!-- 设置是否默认激活这个配置 -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- compiler -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${compiler-plugin.version}</version>
+                        <configuration>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
+                            <compilerVersion>${java.version}</compilerVersion>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <!-- 定义maven deploy上传仓库 -->
+            <!-- snapshotRepository 与 repository 中的 id 一定要与 setting.xml 中 server 的 id 保持一致。 -->
+            <distributionManagement>
+                <!-- 公司maven仓库地址 -->
+                <repository>
+                    <id>releases</id>
+                    <name>Nexus Release Repository</name>
+                    <url>http://10.10.50.246:8081/repository/maven-releases/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>snapshots</id>
+                    <name>Nexus Snapshot Repository</name>
+                    <url>http://10.10.50.246:8081/repository/maven-releases/</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+        <!-- 发布环境 -->
+        <profile>
+            <id>release</id>
+            <activation>
+                <!-- 设置是否默认激活这个配置 -->
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- compiler -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${compiler-plugin.version}</version>
+                        <configuration>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
+                            <compilerVersion>${java.version}</compilerVersion>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                        </configuration>
+                    </plugin>
+                    <!-- source -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${source-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- javadoc -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${javadoc-plugin.version}</version>
+                        <configuration>
+                            <show>private</show>
+                            <nohelp>true</nohelp>
+                            <charset>UTF-8</charset>
+                            <encoding>UTF-8</encoding>
+                            <docencoding>UTF-8</docencoding>
+                            <!-- 临时解决不规范的javadoc生成报错，后面要规范化后把这行去掉 -->
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- GPG签名插件：在将 Maven 的包上传到中央仓库并且创建发行版之前需要对包进行 GPG 签名。 -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Release -->
+                    <!--<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>${maven-release-plugin.version}</version>
+                    </plugin>-->
+                    <!-- 发布Jar包到私服仓库插件 -->
+                    <!--<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <version>${maven-deploy-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>default-deploy</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>-->
+                </plugins>
+            </build>
+            <!-- 定义snapshots库和releases库的nexus地址 -->
+            <!-- 注意：snapshotRepository 与 repository 中的 id 一定要与 setting.xml 中 server 的 id 保持一致。否则发布会出错 -->
+            <distributionManagement>
+                <!-- sonatype -->
+                <snapshotRepository>
+                    <id>oss</id>
+                    <name>Sonatype Nexus Snapshots</name>
+                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+                </snapshotRepository>
+                <repository>
+                    <id>oss</id>
+                    <name>Nexus Release Repository</name>
+                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <!-- 统一管理父子模块的版本号：mvn versions:set -DnewVersion=1.0.1。版本回滚：mvn versions:revert -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin.version}</version>
+                <configuration>
+                    <!-- 参数是设置是否修改版本时对现有版本的文件进行备份。因为我们的项目一般都是交给git管理的，所以不需要让该插件帮我们备份，改错了，直接revert就好了。 -->
+                    <generateBackupPoms>false</generateBackupPoms>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

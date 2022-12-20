@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xwl.mybatishelper.test.mapper.SysUserMapper">
+    <insert id="insertBySql">
+        INSERT INTO sys_user VALUE (#{sysUser.id}, #{sysUser.account}, #{sysUser.password}, #{sysUser.username}, #{sysUser.idNumber})
+    </insert>
+
+    <select id="getByUsername2" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+        SELECT * FROM sys_user WHERE username = #{enc_username}
+    </select>
+
+    <select id="getByUsernameAndIdNumber" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+        SELECT * FROM sys_user WHERE username = #{username} and id_number = #{idNumber}
+    </select>
+
+    <select id="queryByVo" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+        SELECT * FROM sys_user WHERE username = #{vo.username} and id_number = #{vo.idNumber}
+    </select>
+    
+    <select id="listByUsernames" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+        SELECT * FROM sys_user WHERE username IN
+        <foreach collection="enc_usernames" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="listByIdNumbers" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+        SELECT * FROM sys_user WHERE id_number IN
+        <foreach collection="enc_idNumbers" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="getByMap" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+        SELECT * FROM sys_user WHERE username = #{map.username} AND id_number = #{map.idNumber}
+    </select>
+
+    <select id="getUser" resultType="com.xwl.mybatishelper.test.vo.UserVO">
+        SELECT * FROM sys_user WHERE username = #{enc_username} AND id_number = #{enc_idNumber}
+    </select>
+
+    <select id="listMap" resultType="java.util.Map">
+        SELECT account, username, id_number FROM sys_user WHERE username = #{enc_username} AND id_number = #{enc_idNumber}
+    </select>
+
+    <select id="pageBySql" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+        SELECT * FROM sys_user WHERE username = #{enc_username}
+    </select>
+
+    <select id="pagehelperBySql" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+        SELECT * FROM sys_user WHERE username = #{enc_username}
+    </select>
+</mapper>

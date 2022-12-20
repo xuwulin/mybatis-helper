@@ -1,0 +1,49 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql:///field_encrypt?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false
+    username: root
+    password: 123456
+
+mybatis:
+  type-aliases-package: com.xwl.*.entity
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+# pagehelper分页插件配置
+pagehelper:
+  # 指定分页插件使用哪种方言
+  helper-dialect: mysql
+  # 在分页查询时进行 count 查询，默认值true
+  row-bounds-with-count: true
+  # 用户输入的页数不在合法范围能够正确的响应到正确的结果页面, pageNum<=0 会查询第一页, pageNum>总页数 会查询最后一页，默认值true
+  reasonable: true
+
+mybatis-helper:
+  # 加解密
+  crypto:
+    # 加密方式（默认SM4）
+    mode: SM4
+    # 参数加密前缀（@Mapper注解value前缀，如@Mapper("enc_username") String username，表示username需要加密）
+    param-prefix: enc_
+    # 加密类全类名
+    class-name: com.xwl.mybatishelper.service.impl.DefaultCryptoImpl
+#    class-name: com.xwl.mybatishelper.test.crypto.CryptoImpl
+    # SM4对称加密密钥（必须为随机16位字符串）
+    key: a3deb145671dd04e
+#    key: JEF8U9WHKWEFS5KD
+    # SM2非对称加密公钥
+    publicKey: 3059301306072a8648ce3d020106082a811ccf5501822d03420004e6d02503196bda21356390f43e324aa9cb42dbe64204ac4d9e1652fe055e4636702f84f376a54af81ca165d355f3e68d137702b9c715b4ecf70d50b65d9d6e78
+    # SM2非对称加密私钥
+    privateKey: 308193020100301306072a8648ce3d020106082a811ccf5501822d047930770201010420169d98f96e7a3deb145671dd04eefdf54b3c2196ca5569b5fb96a9ff5abe957da00a06082a811ccf5501822da14403420004e6d02503196bda21356390f43e324aa9cb42dbe64204ac4d9e1652fe055e4636702f84f376a54af81ca165d355f3e68d137702b9c715b4ecf70d50b65d9d6e78
+  # 脱敏
+  desensitized:
+    # 填充符号
+    replacement: '*'
+    # 脱敏类全类名
+    class-name: com.xwl.mybatishelper.service.impl.DefaultDesensitizedImpl
+
+
+
