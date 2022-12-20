@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.xwl</groupId>
+    <groupId>io.github.xuwulin</groupId>
     <artifactId>mybatis-helper</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
@@ -84,7 +84,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.xwl</groupId>
+                <groupId>io.github.xuwulin</groupId>
                 <artifactId>mybatis-helper-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
