@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: mybatis-helper-boot-starter-test
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql:///field_encrypt?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&useSSL=false
