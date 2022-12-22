@@ -143,11 +143,12 @@ public class SysUserController {
     }
 
     @GetMapping("/getByQueryWrapper")
-    public Object getByQueryWrapper(String username, String idNumber) {
+    public Object getByQueryWrapper(String account, String username, String idNumber) {
         // 支持
         QueryWrapper wrapper = Wrappers.query(new SysUser())
                 .eq("username", username)
                 .eq("id_number", idNumber)
+                .eq("account", account)
                 .orderByAsc("account")
                 .last("limit 1");
         List<SysUser> sysUsers = iSysUserService.list(wrapper);
@@ -234,9 +235,10 @@ public class SysUserController {
     }
 
     @GetMapping("/mybatisPlusPage")
-    public Object page(Integer pageNum, Integer pageSize, String account) {
+    public Object page(Integer pageNum, Integer pageSize, String username) {
         IPage<SysUser> page = new Page<>(pageNum, pageSize);
-        LambdaQueryWrapper<SysUser> wrapper = Wrappers.<SysUser>lambdaQuery().eq(SysUser::getAccount, account);
+        LambdaQueryWrapper<SysUser> wrapper = Wrappers.lambdaQuery(new SysUser())
+                .eq(SysUser::getUsername, username);
         IPage<SysUser> result = iSysUserService.page(page, wrapper);
         return result;
     }
@@ -251,7 +253,8 @@ public class SysUserController {
     @GetMapping("/pagehelper")
     public Object pagehelper(Integer pageNum, Integer pageSize, String username) {
         PageHelper.startPage(pageNum, pageSize);
-        LambdaQueryWrapper<SysUser> wrapper = Wrappers.<SysUser>lambdaQuery().eq(SysUser::getUsername, username);
+        LambdaQueryWrapper<SysUser> wrapper = Wrappers.lambdaQuery(new SysUser())
+                .eq(SysUser::getUsername, username);
         List<SysUser> list = iSysUserService.list(wrapper);
         PageInfo pageInfo = new PageInfo(list);
         return pageInfo;

@@ -179,6 +179,7 @@ public class ParameterUtils {
             String sqlSegment = new GenericTokenParser(Constants.DOLLAR_LEFT_BRACE, Constants.RIGHT_BRACE, text -> text).parse(abstractWrapper.getSqlSegment());
             // 参数格式转换,对应SqlScriptUtils.unSafeParam 非安全入参:  ${入参}
             sqlSegment = new GenericTokenParser(Constants.HASH_LEFT_BRACE, Constants.RIGHT_BRACE, text -> text).parse(sqlSegment);
+            // 将sqlSegment解析成expression
             Expression expression = CCJSqlParserUtil.parseCondExpression(sqlSegment);
             List<ParameterColumnMapping> parameterColumnMappingList = getParameterColumnMappingList(expression);
             parameterValueMappingList = parameterColumnMappingList
@@ -188,7 +189,7 @@ public class ParameterUtils {
                         parameterValueMapping.setParamName(item.getParamName());
                         parameterValueMapping.setColumnName(item.getColumnName());
                         parameterValueMapping.setConditionEnum(item.getConditionEnum());
-                        // 需要去除前缀,格式参照AbstractWrapper.formatParam(String mapping, Object param)
+                        // 需要去除前缀，格式参照AbstractWrapper.formatParam(String mapping, Object param)
                         String prefix = abstractWrapper.getParamAlias() + Constants.WRAPPER_PARAM_MIDDLE;
                         String key = item.getParamName().replace(prefix, "");
                         Object paramValue = abstractWrapper.getParamNameValuePairs().get(key);
