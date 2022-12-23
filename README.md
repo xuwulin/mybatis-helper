@@ -216,7 +216,62 @@ public enum DesensitizedType {
 }
 ```
 
-## 用法案例
+## 自定义加解密
+
+### 实现接口
+
+实现com.xwl.mybatishelper.service.ICrypto接口
+
+```java
+@Slf4j
+public class CryptoImpl implements ICrypto {
+    @Override
+    public String encrypt(CryptoAlgorithm cryptoAlgorithm, String plaintext, String key, String publicKey, String privateKey) throws Exception {
+        log.info("自定义加密方法，明文：{}，加密结果：{}", plaintext, SM4Utils.encryptData_ECB(plaintext, key));
+        return SM4Utils.encryptData_ECB(plaintext, key);
+    }
+
+    @Override
+    public String decrypt(CryptoAlgorithm cryptoAlgorithm, String ciphertext, String key, String publicKey, String privateKey) throws Exception {
+        log.info("自定义解密方法，密文：{}, 解密结果：{}", ciphertext, SM4Utils.decryptData_ECB(ciphertext, key));
+        return SM4Utils.decryptData_ECB(ciphertext, key);
+    }
+}
+```
+
+### 用法
+
+方式一：在配置文件application.yml中指定
+
+```yaml
+mybatis-helper:
+  # 加解密
+  crypto:
+    # 加解密类全类名（默认com.xwl.mybatishelper.service.impl.DefaultCryptoImpl）
+    class-name: com.xwl.mybatishelper.mybatisplus.crypto.CryptoImpl
+```
+
+方式二：在注解中指定
+
+```java
+@Data
+public class SysUser {
+    @CryptoField(iCrypto = CryptoImpl.class)
+    private String password;
+}
+```
+
+## 自定义脱敏
+
+### 实现接口
+
+实现com.xwl.mybatishelper.service.IDesensitized接口
+
+### 用法
+
+略：同自定义加解密
+
+## 案例
 
 实体类：
 
