@@ -16,12 +16,12 @@ public class CryptoProperties {
     private String mode = "SM4";
 
     /**
-     * 参数加密前缀（@Mapper注解value前缀，如@Mapper("enc_username") String username，表示username需要加密）
+     * 参数加密前缀（默认enc_，即@Param注解value前缀，如@Param("enc_username") String username，表示username需要加密）
      */
     private String paramPrefix = "enc_";
 
     /**
-     * 加密类全类名
+     * 加解密类全类名（默认com.xwl.mybatishelper.service.impl.DefaultCryptoImpl）
      */
     private String className = "com.xwl.mybatishelper.service.impl.DefaultCryptoImpl";
 

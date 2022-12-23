@@ -23,8 +23,5 @@ public enum CryptoAlgorithm {
     /**
      * 国密 SM4 对称加密算法，无线局域网标准的分组数据算法
      */
-    SM4,
-
-    CryptoAlgorithm() {
-    }
+    SM4
 }

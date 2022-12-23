@@ -34,7 +34,7 @@ public @interface DesensitizedField {
     DesensitizedType type() default DesensitizedType.DEFAULT;
 
     /**
-     * 脱敏实现
+     * 脱敏器
      * 注解默认值为NoneDesensitizedImpl.class，使用全局配置文件中指定的值（配置文件默认DefaultDesensitizedImpl.class），方便全局替换使用自定义脱敏实现
      * 当注解值不为NoneDesensitizedImpl.class时，使用使用注解值
      * 注：NoneDesensitizedImpl.class可以理解为null，因为注解属性的默认值不能指定为null，所以使用NoneDesensitizedImpl替换

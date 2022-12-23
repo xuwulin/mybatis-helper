@@ -14,6 +14,8 @@ import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ParameterMapping;
+import org.apache.ibatis.mapping.ParameterMode;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -119,9 +121,33 @@ public class CryptoInterceptor implements Interceptor {
             boundSql = mappedStatement.getBoundSql(paramObj);
             cacheKey = executor.createCacheKey(mappedStatement, paramObj, rowBounds, boundSql);
         } else {
-            // 6 个参数（分页查询）
+            // 6 个参数（分页查询或者当查询条件有IN/NOT IN时或查询参数为VO时）
             cacheKey = (CacheKey) args[4];
             boundSql = (BoundSql) args[5];
+
+            // 对查询条件有IN/NOT IN的sql特殊处理
+            Object parameterObject = boundSql.getParameterObject();
+            if (parameterObject instanceof MapperMethod.ParamMap) {
+                MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameterObject;
+                Set keySet = paramMap.keySet();
+                for (Object key : keySet) {
+                    String keyStr = (String) key;
+                    if (keyStr.startsWith(cryptoProperties.getParamPrefix())) {
+                        List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+                        for (ParameterMapping parameterMapping : parameterMappings) {
+                            String property = parameterMapping.getProperty();
+                            ParameterMode mode = parameterMapping.getMode();
+                            if (mode == ParameterMode.IN) {
+                                Object val = boundSql.getAdditionalParameter(property);
+                                if (Objects.nonNull(val)) {
+                                    boundSql.setAdditionalParameter(property, getCiphertext(val));
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
         }
 
         // 执行查询mappedStatement = {MappedStatement@6629}
@@ -175,7 +201,7 @@ public class CryptoInterceptor implements Interceptor {
                         if (keyStr.startsWith(cryptoProperties.getParamPrefix())) {
                             Collection values = (Collection) value;
                             if (CollectionUtil.isNotEmpty(values)) {
-                                List<Object> ciphertextList = new ArrayList<>();
+                                Set<Object> ciphertextList = new HashSet<>();
                                 for (Object o : values) {
                                     ciphertextList.add(getCiphertext(o));
                                 }
@@ -339,6 +365,9 @@ public class CryptoInterceptor implements Interceptor {
      * @throws Exception
      */
     private String getCiphertext(Object value) throws Exception {
+        if (Objects.isNull(value)) {
+            return null;
+        }
         // 加密方式
         String mode = cryptoProperties.getMode();
         // 加密类全类名

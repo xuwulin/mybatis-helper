@@ -42,11 +42,11 @@ mybatis-helper:
   crypto:
     # 加密方式（默认SM4）
     mode: SM4
-    # 参数加密前缀（@Mapper注解value前缀，如@Mapper("enc_username") String username，表示username需要加密）
+    # 参数加密前缀（默认enc_，@Param注解value前缀，如@Param("enc_username") String username，表示username需要加密）
     param-prefix: enc_
-    # 加密类全类名
+    # 加解密类全类名（默认com.xwl.mybatishelper.service.impl.DefaultCryptoImpl）
     class-name: com.xwl.mybatishelper.service.impl.DefaultCryptoImpl
-#    class-name: com.xwl.mybatishelper.test.crypto.CryptoImpl
+#    class-name: com.xwl.mybatishelper.mybatisplus.crypto.CryptoImpl
     # SM4对称加密密钥（必须为随机16位字符串）
     key: a3deb145671dd04e
 #    key: JEF8U9WHKWEFS5KD

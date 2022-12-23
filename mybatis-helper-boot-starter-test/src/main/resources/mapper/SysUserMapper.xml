@@ -1,30 +1,62 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.xwl.mybatishelper.test.mapper.SysUserMapper">
+<mapper namespace="com.xwl.mybatishelper.mybatis.mapper.SysUserMapper">
     <insert id="save">
-        INSERT INTO sys_user (id, account, username, id_number, password)
-        VALUE (#{user.id}, #{user.account}, #{user.username}, #{user.idNumber}, #{user.password});
+        INSERT INTO sys_user (id, account, username, id_number, password, dept_id)
+        VALUE (#{user.id}, #{user.account}, #{user.username}, #{user.idNumber}, #{user.password}, #{user.deptId});
     </insert>
 
     <update id="update">
-        UPDATE sys_user SET id_number = #{vo.idNumber} WHERE account = #{vo.account}
+        UPDATE sys_user SET username = #{vo.username}, id_number = #{vo.idNumber} WHERE account = #{vo.account}
     </update>
 
-    <select id="list" resultType="com.xwl.mybatishelper.test.entity.SysUser">
+    <select id="listUsers" resultType="com.xwl.mybatishelper.mybatis.entity.SysUser">
         SELECT * FROM sys_user
     </select>
 
-    <select id="getBy" resultType="com.xwl.mybatishelper.test.entity.SysUser">
-        SELECT * FROM sys_user WHERE username = #{enc_username} AND id_number = #{enc_idNumber}
+    <select id="getBy" resultType="com.xwl.mybatishelper.mybatis.entity.SysUser">
+        SELECT * FROM sys_user WHERE id_number = #{enc_idNumber}
     </select>
 
-    <select id="getVo" resultType="com.xwl.mybatishelper.test.vo.OutVO">
+    <select id="getVo" resultType="com.xwl.mybatishelper.mybatis.vo.OutVO">
         SELECT * FROM sys_user WHERE username = #{vo.username} AND id_number = #{vo.idNumber}
     </select>
 
-    <select id="join" resultType="com.xwl.mybatishelper.test.vo.OutVO">
+    <select id="join" resultType="com.xwl.mybatishelper.mybatis.vo.OutVO">
         SELECT * FROM sys_user u
         JOIN sys_dept d ON u.dept_id = d.id
         WHERE d.id = #{deptId}
+    </select>
+
+    <select id="getMap" resultType="java.util.Map">
+        SELECT * FROM sys_user
+    </select>
+
+    <select id="listByIdNumberSet" resultType="com.xwl.mybatishelper.mybatis.entity.SysUser">
+        SELECT * FROM sys_user WHERE id_number IN
+        <foreach collection="enc_idNumbers" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="listByIdNumberList" resultType="com.xwl.mybatishelper.mybatis.entity.SysUser">
+        SELECT * FROM sys_user WHERE id_number IN
+        <foreach collection="enc_idNumbers" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="notIn" resultType="com.xwl.mybatishelper.mybatis.entity.SysUser">
+        SELECT * FROM sys_user WHERE id_number NOT IN
+        <foreach collection="enc_idNumbers" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="listByUsernames" resultType="com.xwl.mybatishelper.mybatis.entity.SysUser">
+        SELECT * FROM sys_user WHERE username IN
+        <foreach collection="usernames" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
     </select>
 </mapper>
