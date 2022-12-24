@@ -60,12 +60,6 @@
             <groupId>com.github.pagehelper</groupId>
             <artifactId>pagehelper-spring-boot-starter</artifactId>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>com.baomidou</groupId>-->
-<!--            <artifactId>mybatis-mate-starter</artifactId>-->
-<!--            <version>1.2.5</version>-->
-<!--        </dependency>-->
     </dependencies>
 
 </project>
