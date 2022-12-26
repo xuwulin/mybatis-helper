@@ -47,7 +47,7 @@ import java.util.*;
 })
 public class CryptoInterceptor implements Interceptor {
 
-    private static final Logger logger = LoggerFactory.getLogger(CryptoInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CryptoInterceptor.class);
 
     @Resource
     private CryptoProperties cryptoProperties;
@@ -55,7 +55,7 @@ public class CryptoInterceptor implements Interceptor {
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         Method method = invocation.getMethod();
-        logger.info("==>com.xwl.plugin.inteceptor.CryptoInterceptor 拦截方法：" + method);
+        LOGGER.info("==>com.xwl.plugin.inteceptor.CryptoInterceptor 拦截方法：" + method);
         switch (method.getName()) {
             case "update":
                 return updateHandle(invocation);
@@ -228,7 +228,7 @@ public class CryptoInterceptor implements Interceptor {
             try {
                 handleString(key, fieldObjectHashMap.get(key), cryptoType);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         });
     }

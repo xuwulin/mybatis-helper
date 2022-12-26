@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
  * @since 2022/12/15 13:17
  */
 public class DefaultDesensitizedImpl implements IDesensitized {
-    private static final Logger logger = LoggerFactory.getLogger(DefaultDesensitizedImpl.class);
 
     @Override
     public String execute(String value, String replacement, DesensitizedType type) {

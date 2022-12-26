@@ -32,7 +32,7 @@ import java.util.*;
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
 })
 public class DesensitizeInterceptor implements Interceptor {
-    private static final Logger logger = LoggerFactory.getLogger(DesensitizeInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DesensitizeInterceptor.class);
 
     @Resource
     private DesensitizedProperties desensitizedProperties;
@@ -79,7 +79,7 @@ public class DesensitizeInterceptor implements Interceptor {
                 try {
                     desensitizeHandle(key, fieldObjectHashMap.get(key));
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             });
         }
@@ -195,7 +195,7 @@ public class DesensitizeInterceptor implements Interceptor {
                 iDesensitized = desensitizedImpl.newInstance();
             }
             String desensitizeValue = iDesensitized.execute(String.valueOf(value), replacement, annotation.type());
-            logger.debug("脱敏前：{}，脱敏后：{}", value, desensitizeValue);
+            LOGGER.debug("脱敏前：{}，脱敏后：{}", value, desensitizeValue);
             field.set(object, String.valueOf(desensitizeValue));
             field.setAccessible(accessible);
         }
