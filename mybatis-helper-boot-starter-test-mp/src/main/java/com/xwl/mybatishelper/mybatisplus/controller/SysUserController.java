@@ -11,6 +11,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
 import com.xwl.mybatishelper.mybatisplus.service.ISysUserService;
+import com.xwl.mybatishelper.mybatisplus.vo.IdNumberVO;
 import com.xwl.mybatishelper.mybatisplus.vo.QueryUserVO;
 import org.springframework.web.bind.annotation.*;
 
@@ -389,7 +390,7 @@ public class SysUserController {
     }
 
     /**
-     * 不支持需加密查询的字段
+     * 不支持此钟方式查询需加密查询的字段
      *
      * @param users
      * @return
@@ -410,5 +411,17 @@ public class SysUserController {
     public Object getByUsers(@RequestBody SysUser user) {
         SysUser sysUser = iSysUserService.getByUsers(user);
         return sysUser;
+    }
+
+    /**
+     * 支持加密查询的字段
+     *
+     * @param vo
+     * @return
+     */
+    @PostMapping("/getByIdNumberVo")
+    public Object getByIdNumberVo(@RequestBody IdNumberVO vo) {
+        List<SysUser> sysUsers = iSysUserService.getByIdNumberVo(vo);
+        return sysUsers;
     }
 }

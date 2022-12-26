@@ -99,4 +99,12 @@
         SELECT * FROM sys_user
         WHERE id_number = #{user.idNumber}
     </select>
+
+    <select id="getByIdNumberVo" resultType="com.xwl.mybatishelper.mybatisplus.entity.SysUser">
+        SELECT * FROM sys_user
+        WHERE id_number IN
+        <foreach collection="enc_vo.idNumbers" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

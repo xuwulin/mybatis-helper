@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
 import com.xwl.mybatishelper.mybatisplus.service.ISysUserService;
 import com.xwl.mybatishelper.mybatisplus.mapper.SysUserMapper;
+import com.xwl.mybatishelper.mybatisplus.vo.IdNumberVO;
 import com.xwl.mybatishelper.mybatisplus.vo.QueryUserVO;
 import org.springframework.stereotype.Service;
 
@@ -113,5 +114,10 @@ public class ISysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> imp
     @Override
     public SysUser getByUsers(SysUser user) {
         return baseMapper.getByUsers(user);
+    }
+
+    @Override
+    public List<SysUser> getByIdNumberVo(IdNumberVO vo) {
+        return baseMapper.getByIdNumberVo(vo);
     }
 }

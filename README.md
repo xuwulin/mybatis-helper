@@ -46,14 +46,14 @@ Maven：
 <dependency>
     <groupId>io.github.xuwulin</groupId>
     <artifactId>mybatis-helper-boot-starter</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
 Gradle：
 
 ```gr
-compile group: 'io.github.xuwulin', name: 'mybatis-helper-boot-starter', version: '1.0.1'
+compile group: 'io.github.xuwulin', name: 'mybatis-helper-boot-starter', version: '1.0.2'
 ```
 
 ### 配置
@@ -517,6 +517,16 @@ mapper.xml
 
 ### Mybatis-Plus
 
+引入依赖
+
+```xml
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-boot-starter</artifactId>
+    <version>3.5.2</version>
+</dependency>
+```
+
 #### Mybatis的写法Mybatis-Plus都支持
 
 #### Mybatis-Plus的wrapper更新&查询
@@ -557,4 +567,4 @@ LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<SysUser>().eq(SysUs
 QueryWrapper<SysUser> wrapper = new QueryWrapper<>().eq("id_number", "");
 ```
 
-用法案例：https://github.com/xuwulin/mybatis-helper 【mybatis-helper-boot-starter-test-mp】
+用法详见案例：https://github.com/xuwulin/mybatis-helper 【mybatis-helper-boot-starter-test-mp】
