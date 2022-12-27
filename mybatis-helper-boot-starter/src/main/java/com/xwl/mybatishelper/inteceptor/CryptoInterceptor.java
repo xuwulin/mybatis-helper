@@ -57,10 +57,10 @@ public class CryptoInterceptor implements Interceptor {
         Method method = invocation.getMethod();
         LOGGER.info("==>com.xwl.plugin.inteceptor.CryptoInterceptor 拦截方法：" + method);
         switch (method.getName()) {
-            case "update":
-                return updateHandle(invocation);
             case "query":
                 return selectHandle(invocation);
+            case "update":
+                return updateHandle(invocation);
             default:
                 return invocation.proceed();
         }
@@ -161,7 +161,7 @@ public class CryptoInterceptor implements Interceptor {
     }
 
     /**
-     * 新增修改操作处理
+     * 修改操作处理
      *
      * @param invocation
      * @return

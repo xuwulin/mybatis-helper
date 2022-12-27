@@ -70,6 +70,7 @@
         <bouncycastle.version>1.72</bouncycastle.version>
         <pagehelper-boot.version>1.4.1</pagehelper-boot.version>
         <mysql.version>8.0.25</mysql.version>
+        <fastjson.version>1.2.83</fastjson.version>
 
         <!-- maven plugins -->
         <compiler-plugin.version>3.5.1</compiler-plugin.version>
@@ -141,6 +142,12 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15to18</artifactId>
                 <version>${bouncycastle.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

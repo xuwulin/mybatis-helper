@@ -67,56 +67,56 @@ public class SysUserController {
     /**
      * LambdaUpdateWrapper wrapper = Wrappers.lambdaUpdate(new SysUser()).eq(SysUser::getIdNumber, "");
      *
-     * @param sysUsers
+     * @param sysUser
      * @return
      */
     @PostMapping("/updateByLambdaUpdateWrapper")
-    public Object updateByLambdaUpdateWrapper(@RequestBody SysUser sysUsers) {
+    public Object updateByLambdaUpdateWrapper(@RequestBody SysUser sysUser) {
         LambdaUpdateWrapper wrapper = Wrappers.lambdaUpdate(new SysUser())
-                .eq(SysUser::getIdNumber, sysUsers.getIdNumber());
-        boolean update = iSysUserService.update(sysUsers, wrapper);
+                .eq(SysUser::getIdNumber, sysUser.getIdNumber());
+        boolean update = iSysUserService.update(sysUser, wrapper);
         return update;
     }
 
     /**
      * LambdaUpdateWrapper<SysUser> wrapper = new LambdaUpdateWrapper<>(new SysUser()).eq(SysUser::getIdNumber, "");
      *
-     * @param sysUsers
+     * @param sysUser
      * @return
      */
-    @PostMapping("/updateByLambdaUpdateWrapper2")
-    public Object updateByLambdaUpdateWrapper2(@RequestBody SysUser sysUsers) {
+    @PostMapping("/updateByNewLambdaUpdateWrapper")
+    public Object updateByNewLambdaUpdateWrapper(@RequestBody SysUser sysUser) {
         LambdaUpdateWrapper<SysUser> wrapper = new LambdaUpdateWrapper<>(new SysUser())
-                .eq(SysUser::getIdNumber, sysUsers.getIdNumber());
-        boolean update = iSysUserService.update(sysUsers, wrapper);
+                .eq(SysUser::getIdNumber, sysUser.getIdNumber());
+        boolean update = iSysUserService.update(sysUser, wrapper);
         return update;
     }
 
     /**
      * UpdateWrapper<SysUser> wrapper = Wrappers.update(new SysUser()).eq("id_number", "");
      *
-     * @param sysUsers
+     * @param sysUser
      * @return
      */
     @PostMapping("/updateByUpdateWrapper")
-    public Object updateByUpdateWrapper(@RequestBody SysUser sysUsers) {
+    public Object updateByUpdateWrapper(@RequestBody SysUser sysUser) {
         UpdateWrapper<SysUser> wrapper = Wrappers.update(new SysUser())
-                .eq("id_number", sysUsers.getIdNumber());
-        boolean update = iSysUserService.update(sysUsers, wrapper);
+                .eq("id_number", sysUser.getIdNumber());
+        boolean update = iSysUserService.update(sysUser, wrapper);
         return update;
     }
 
     /**
      * UpdateWrapper<SysUser> wrapper = new UpdateWrapper<>(new SysUser()).eq("id_number", "");
      *
-     * @param sysUsers
+     * @param sysUser
      * @return
      */
-    @PostMapping("/updateByUpdateWrapper2")
-    public Object updateByUpdateWrapper2(@RequestBody SysUser sysUsers) {
+    @PostMapping("/updateByNewUpdateWrapper")
+    public Object updateByNewUpdateWrapper(@RequestBody SysUser sysUser) {
         UpdateWrapper<SysUser> wrapper = new UpdateWrapper<>(new SysUser())
-                .eq("id_number", sysUsers.getIdNumber());
-        boolean update = iSysUserService.update(sysUsers, wrapper);
+                .eq("id_number", sysUser.getIdNumber());
+        boolean update = iSysUserService.update(sysUser, wrapper);
         return update;
     }
 
@@ -127,8 +127,8 @@ public class SysUserController {
         return iSysUserService.getOne(wrapper);
     }
 
-    @GetMapping("/getByLambdaQueryWrapper2")
-    public Object getByLambdaQueryWrapper2(String idNumber) {
+    @GetMapping("/getByNewLambdaQueryWrapper")
+    public Object getByNewLambdaQueryWrapper(String idNumber) {
         LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>(new SysUser())
                 .eq(SysUser::getIdNumber, idNumber);
         return iSysUserService.getOne(wrapper);
@@ -141,15 +141,15 @@ public class SysUserController {
         return iSysUserService.getOne(wrapper);
     }
 
-    @GetMapping("/getByQueryWrapper2")
-    public Object getByQueryWrapper2(String idNumber) {
+    @GetMapping("/getByNewQueryWrapper")
+    public Object getByNewQueryWrapper(String idNumber) {
         QueryWrapper<SysUser> wrapper = new QueryWrapper<>(new SysUser())
                 .eq("id_number", idNumber);
         return iSysUserService.getOne(wrapper);
     }
 
-    @GetMapping("/getByQueryWrapper3")
-    public Object getByQueryWrapper3(String account, String username, String idNumber) {
+    @GetMapping("/getByQueryWrapperMultipleConditions")
+    public Object getByQueryWrapperMultipleConditions(String account, String username, String idNumber) {
         QueryWrapper wrapper = Wrappers.query(new SysUser())
                 .eq("username", username)
                 .eq("id_number", idNumber)
@@ -166,9 +166,9 @@ public class SysUserController {
         return sysUser;
     }
 
-    @GetMapping("/listByUsername")
-    public Object listByUsername(String username, String idNumber) {
-        List<SysUser> sysUsers = iSysUserService.listByUsername(username, idNumber);
+    @GetMapping("/listBy")
+    public Object listBy(String username, String idNumber) {
+        List<SysUser> sysUsers = iSysUserService.listBy(username, idNumber);
         return sysUsers;
     }
 

@@ -107,4 +107,8 @@
             #{item}
         </foreach>
     </select>
+
+    <select id="outVo" resultType="com.xwl.mybatishelper.mybatisplus.vo.OutVO">
+        SELECT * FROM sys_user WHERE id_number = #{vo.idNumber}
+    </select>
 </mapper>

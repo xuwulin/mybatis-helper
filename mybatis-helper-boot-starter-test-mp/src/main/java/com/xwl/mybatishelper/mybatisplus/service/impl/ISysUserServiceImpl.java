@@ -8,6 +8,7 @@ import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
 import com.xwl.mybatishelper.mybatisplus.service.ISysUserService;
 import com.xwl.mybatishelper.mybatisplus.mapper.SysUserMapper;
 import com.xwl.mybatishelper.mybatisplus.vo.IdNumberVO;
+import com.xwl.mybatishelper.mybatisplus.vo.OutVO;
 import com.xwl.mybatishelper.mybatisplus.vo.QueryUserVO;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class ISysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> imp
     }
 
     @Override
-    public List<SysUser> listByUsername(String username, String idNumber) {
+    public List<SysUser> listBy(String username, String idNumber) {
         LambdaQueryWrapper wrapper = Wrappers.lambdaQuery(new SysUser())
                 .eq(SysUser::getUsername, username)
                 .eq(SysUser::getIdNumber, idNumber);
@@ -119,5 +120,10 @@ public class ISysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> imp
     @Override
     public List<SysUser> getByIdNumberVo(IdNumberVO vo) {
         return baseMapper.getByIdNumberVo(vo);
+    }
+
+    @Override
+    public OutVO outVo(QueryUserVO vo) {
+        return baseMapper.outVo(vo);
     }
 }

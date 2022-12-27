@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
 import com.xwl.mybatishelper.mybatisplus.vo.IdNumberVO;
+import com.xwl.mybatishelper.mybatisplus.vo.OutVO;
 import com.xwl.mybatishelper.mybatisplus.vo.QueryUserVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -172,4 +173,12 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @return
      */
     List<SysUser> getByIdNumberVo(@Param("enc_vo") IdNumberVO vo);
+
+    /**
+     * 查询结果为vo
+     *
+     * @param vo 参数
+     * @return
+     */
+    OutVO outVo(@Param("vo") QueryUserVO vo);
 }

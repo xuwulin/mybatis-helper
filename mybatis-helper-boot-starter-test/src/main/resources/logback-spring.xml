@@ -7,6 +7,7 @@
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
 
     <!-- 可以使用include标签引入配置 -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
     <!-- <include resource="org/springframework/boot/logging/logback/base.xml" /> -->
 
     <!-- 使用springProperty标签，读取spring配置文件bootstrap.yml或application.yml中的配置 -->
@@ -24,13 +25,17 @@
     <property name="FILE_PATH" value="${filePath}/${fileName}"/>
 
     <!-- 日志输出格式：
-            %d：日期时间，
-            %thread：线程名，
-            %-5level：级别从左显示5个字符宽度，
-            %logger{50}：logger名字最长50个字符，否则按照句点分割，
-            %msg：日志消息，
+            %d=%date：日期时间，
+            %r=%relative：输出从程序启动到创建日志记录的时间，单位是毫秒
+            %t=%thread：本条日志所在线程名字
+            %-5level：级别从左显示5个字符宽度，-5的解释：是否左对齐以及空格填充，最大字符和最小字符等
+            %C=%class：打印出类名信息，不推荐使用。除非执行速度不是问题。
+            %logger{50}：logger名字最长50个字符，否则按照句点分割，日志名字最右边的名字永远不会被缩写，不管你给的长度是不是小于最右边的长度，其他部分，最少被缩短到一个字符，但不会被完全删除。默认不给长度，显示所有.
+            %L=%line：日志请求的行号，不推荐使用。除非执行速度不是问题。
+            %M=%method：方法名，日志请求发出的方法的方法名，不推荐使用。除非执行速度不是问题。
+            %m=%msg=%message：日志正文信息
+            %i：序号，日志文件编号
             %n：换行符 -->
-
     <!-- 输出到控制台 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <!-- 此日志appender是为开发使用，只配置最低级别，控制台输出的日志级别是大于或等于此级别的日志信息 -->
@@ -40,9 +45,10 @@
         <encoder>
             <!-- 设置字符集 -->
             <charset>UTF-8</charset>
-            <!-- 日志输出格式：使用彩色日志 -->
-            <Pattern>%red(%d{yyyy-MM-dd HH:mm:ss}) %green([%thread]) %highlight(%-5level) %boldMagenta(%logger : %line) - %msg%n
-            </Pattern>
+            <!-- 日志输出格式：使用默认格式 -->
+<!--            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(-&#45;&#45;){faint} %clr([%thread]){faint} %clr(%-40.40logger{39}){cyan} %L %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>-->
+            <!-- 日志输出格式：自定义使用彩色日志 -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%-5level) %clr(${PID:- }){magenta} [%thread] %clr(%logger{39}: %line){cyan} - %msg%n</pattern>
         </encoder>
     </appender>
 

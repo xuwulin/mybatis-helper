@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 日志级别从低到高分为TRACE < DEBUG < INFO < WARN < ERROR < FATAL，如果设置为WARN，则低于WARN的信息都不会输出 -->
-
 <!-- scan:当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true -->
 <!-- scanPeriod:设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。 -->
 <!-- debug:当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。 -->
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
 
+    <!-- 日志级别从低到高分为TRACE < DEBUG < INFO < WARN < ERROR < FATAL，如果设置为WARN，则低于WARN的信息都不会输出 -->
+
     <!-- 可以使用include标签引入配置 -->
-    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
-    <!-- <include resource="org/springframework/boot/logging/logback/base.xml" /> -->
+    <!-- 引入spirng boot默认的logback配置文件 -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
     <!-- 使用springProperty标签，读取spring配置文件bootstrap.yml或application.yml中的配置 -->
     <springProperty scope="context" name="applicationName" source="spring.application.name" defaultValue="default-log"/>
-<!--    <springProperty scope="context" name="filePath" source="log.file-path" defaultValue="./appLogs"/>-->
-<!--    <springProperty scope="context" name="fileName" source="log.file-name" defaultValue="${applicationName}"/>-->
-
-    <!-- name的值是变量的名称，value的值时变量定义的值。通过定义的值会被插入到logger上下文中。定义变量后，可以使“${}”来使用变量。 -->
-    <property name="filePath" value="./appLogs"/>
-    <property name="fileName" value="${applicationName}"/>
+    <springProperty scope="context" name="filePath" source="logging.file.path" defaultValue="../appLogs"/>
+    <springProperty scope="context" name="fileName" source="logging.file.name" defaultValue="${applicationName}"/>
 
     <!-- 用于指定logger上下文名称，默认为default -->
     <contextName>logback</contextName>
@@ -36,6 +32,8 @@
             %m=%msg=%message：日志正文信息
             %i：序号，日志文件编号
             %n：换行符 -->
+    <!-- 自定义颜色配置 -->
+    <conversionRule conversionWord="customize" converterClass="com.yunh.base.autoconfigure.log.LogbackColorful"/>
     <!-- 输出到控制台 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <!-- 此日志appender是为开发使用，只配置最低级别，控制台输出的日志级别是大于或等于此级别的日志信息 -->
@@ -45,12 +43,11 @@
         <encoder>
             <!-- 设置字符集 -->
             <charset>UTF-8</charset>
-            <!-- 日志输出格式：使用springboot默认格式 -->
-<!--            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(-&#45;&#45;){faint} %clr([%thread]){faint} %clr(%-40.40logger{39}){cyan} %L %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>-->
-            <!-- 或者使用${CONSOLE_LOG_PATTERN} -->
+            <!-- 使用springboot默认的 -->
 <!--            <pattern>${CONSOLE_LOG_PATTERN}</pattern>-->
-            <!-- 日志输出格式：自定义使用彩色日志 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %clr(%-5level) %clr(${PID:- }){magenta} [%thread] %clr(%logger{39}: %line){cyan} - %msg%n</pattern>
+            <!-- 自定义 -->
+            <!-- 日志输出格式：使用彩色日志 【%customize(%-5level) -> %clr(%-5level)】 -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) %magenta(${PID:- }) [%thread] %cyan(%logger{39} : %line) - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -70,10 +67,10 @@
             <!-- 日志文件存储的位置及文件名称 -->
             <fileNamePattern>${FILE_PATH}/debug/log_debug_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!-- 日志文件保留天数 -->
-            <maxHistory>15</maxHistory>
+            <maxHistory>30</maxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <!-- 日志文件最大值，超过最大值，会重新建一个文件 -->
-                <maxFileSize>100MB</maxFileSize>
+                <maxFileSize>20MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
         <!-- 过滤日志，此日志文件只记录debug级别的 -->
@@ -93,9 +90,9 @@
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${FILE_PATH}/info/log_info_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxHistory>15</maxHistory>
+            <maxHistory>30</maxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>100MB</maxFileSize>
+                <maxFileSize>20MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -114,9 +111,9 @@
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${FILE_PATH}/warn/log_warn_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxHistory>15</maxHistory>
+            <maxHistory>30</maxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>100MB</maxFileSize>
+                <maxFileSize>20MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
@@ -135,9 +132,9 @@
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${FILE_PATH}/error/log_error_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-            <maxHistory>15</maxHistory>
+            <maxHistory>30</maxHistory>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>100MB</maxFileSize>
+                <maxFileSize>20MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
