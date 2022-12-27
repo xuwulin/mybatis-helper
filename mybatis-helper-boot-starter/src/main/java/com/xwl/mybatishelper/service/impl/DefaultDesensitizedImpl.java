@@ -27,6 +27,4 @@ public class DefaultDesensitizedImpl implements IDesensitized {
         }
         return sensitiveInfo;
     }
-
-
 }

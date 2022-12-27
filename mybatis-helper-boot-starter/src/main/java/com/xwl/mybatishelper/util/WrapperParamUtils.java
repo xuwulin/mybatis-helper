@@ -39,8 +39,8 @@ import java.util.stream.Collectors;
  * @author xwl
  * @since 2022/12/7 10:56
  */
-public class ParameterUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ParameterUtils.class);
+public class WrapperParamUtils {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WrapperParamUtils.class);
 
     /**
      * 查找分页参数
@@ -125,10 +125,10 @@ public class ParameterUtils {
                 parameterColumnMappingList = getParameterColumnMappingList(expression);
                 return parameterColumnMappingList;
             } catch (JSQLParserException e) {
-                logger.error("条件表达式解析出错： sql = {}", boundSql.getSql(), e);
+                LOGGER.error("条件表达式解析出错，sql：{}", boundSql.getSql(), e);
                 return parameterColumnMappingList;
             } catch (Exception e) {
-                logger.error("系统异常：", e);
+                LOGGER.error("系统异常：{}", e.getMessage(), e);
                 return parameterColumnMappingList;
             }
         }
@@ -199,10 +199,10 @@ public class ParameterUtils {
                     .collect(Collectors.toList());
             return parameterValueMappingList;
         } catch (JSQLParserException e) {
-            logger.error("条件表达式解析出错： sqlSegment = {}", abstractWrapper.getSqlSegment(), e);
+            LOGGER.error("条件表达式解析出错，sqlSegment = {}", abstractWrapper.getSqlSegment(), e);
             return parameterValueMappingList;
         } catch (Exception e) {
-            logger.error("系统出错 = {}", abstractWrapper.getSqlSegment(), e);
+            LOGGER.error("系统异常：{}", abstractWrapper.getSqlSegment(), e);
             return parameterValueMappingList;
         }
     }
@@ -354,7 +354,9 @@ public class ParameterUtils {
                                 // 加密
                                 String encryptValue = iCrypto.encrypt(cryptoAlgorithm, String.valueOf(paramValue), secret, publicKey, privateKey);
                                 paramNameValuePairs.put(paramKey, encryptValue);
-                                logger.info("属性：{}，列名：{}，条件：{}，参数原值：{}，参数加密后值：{}", property, column, parameterValueMapping.getConditionEnum().getCode(), paramValue, encryptValue);
+                                if (cryptoProperties.isEnableDetailLog()) {
+                                    LOGGER.info("加密属性：{}.{}，列名：{}，条件：{}，加密前：{}，加密后：{}", field.getDeclaringClass().getName(), property, column, parameterValueMapping.getConditionEnum().getCode(), paramValue, encryptValue);
+                                }
                             }
                         }
                     }

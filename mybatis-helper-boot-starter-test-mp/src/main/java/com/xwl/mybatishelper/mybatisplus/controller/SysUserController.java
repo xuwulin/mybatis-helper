@@ -179,8 +179,8 @@ public class SysUserController {
     }
 
     @GetMapping("/getByIdNumber")
-    public Object getByIdNumber(String username) {
-        SysUser sysUser = iSysUserService.getByIdNumber(username);
+    public Object getByIdNumber(String idNumber) {
+        SysUser sysUser = iSysUserService.getByIdNumber(idNumber);
         return sysUser;
     }
 

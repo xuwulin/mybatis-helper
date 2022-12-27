@@ -6,7 +6,7 @@ import com.xwl.mybatishelper.enums.CryptoAlgorithm;
 import com.xwl.mybatishelper.enums.CryptoType;
 import com.xwl.mybatishelper.service.ICrypto;
 import com.xwl.mybatishelper.service.impl.NoneCryptoImpl;
-import com.xwl.mybatishelper.util.ParameterUtils;
+import com.xwl.mybatishelper.util.WrapperParamUtils;
 import com.xwl.mybatishelper.annotation.CryptoField;
 import com.xwl.mybatishelper.properties.CryptoProperties;
 import org.apache.ibatis.binding.MapperMethod;
@@ -53,7 +53,7 @@ public class CryptoInterceptor implements Interceptor {
     private CryptoProperties cryptoProperties;
 
     @Override
-    public Object intercept(Invocation invocation) throws Throwable {
+    public Object intercept(Invocation invocation) throws Exception {
         Method method = invocation.getMethod();
         LOGGER.info("==>com.xwl.plugin.inteceptor.CryptoInterceptor 拦截方法：" + method);
         switch (method.getName()) {
@@ -71,9 +71,9 @@ public class CryptoInterceptor implements Interceptor {
      *
      * @param invocation
      * @return
-     * @throws Throwable
+     * @throws Exception
      */
-    private Object selectHandle(Invocation invocation) throws Throwable {
+    private Object selectHandle(Invocation invocation) throws Exception {
         // 拦截方法参数
         Object[] args = invocation.getArgs();
         // MappedStatement维护了一条<select|update|delete|insert>节点的封装
@@ -112,7 +112,7 @@ public class CryptoInterceptor implements Interceptor {
         BoundSql boundSql;
 
         // 处理参数作为条件查询需要加密
-        handleParameterOrResult(paramObj, CryptoType.ENCRYPT);
+        handleParam(paramObj);
 
         // 由于逻辑关系，只会进入一次
         if (args.length == 4) {
@@ -126,63 +126,42 @@ public class CryptoInterceptor implements Interceptor {
             boundSql = (BoundSql) args[5];
 
             // 对查询条件有IN/NOT IN的sql特殊处理
-            Object parameterObject = boundSql.getParameterObject();
-            if (parameterObject instanceof MapperMethod.ParamMap) {
-                MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameterObject;
-                Set keySet = paramMap.keySet();
-                for (Object key : keySet) {
-                    String keyStr = (String) key;
-                    if (keyStr.startsWith(cryptoProperties.getParamPrefix())) {
-                        List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
-                        for (ParameterMapping parameterMapping : parameterMappings) {
-                            String property = parameterMapping.getProperty();
-                            ParameterMode mode = parameterMapping.getMode();
-                            if (mode == ParameterMode.IN) {
-                                Object val = boundSql.getAdditionalParameter(property);
-                                if (Objects.nonNull(val)) {
-                                    boundSql.setAdditionalParameter(property, getCiphertext(val));
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
+            handleBoundSql(boundSql);
         }
 
-        // 执行查询mappedStatement = {MappedStatement@6629}
+        // 执行查询
         List<Object> resultList = executor.query(mappedStatement, paramObj, rowBounds, resultHandler, cacheKey, boundSql);
         for (Object result : resultList) {
             // 处理查询结果，如果有解密字段，则执行解密
-            handleParameterOrResult(result, CryptoType.DECRYPT);
+            handleResult(result);
         }
 
         return resultList;
     }
+
 
     /**
      * 修改操作处理
      *
      * @param invocation
      * @return
-     * @throws Throwable
+     * @throws Exception
      */
-    private Object updateHandle(Invocation invocation) throws Throwable {
+    private Object updateHandle(Invocation invocation) throws Exception {
         // 处理参数
-        handleParameterOrResult(invocation.getArgs()[1], CryptoType.ENCRYPT);
+        handleParam(invocation.getArgs()[1]);
         return invocation.proceed();
     }
 
     /**
-     * 处理参数或结果
+     * 处理参数
      *
-     * @param obj        参数或结果
-     * @param cryptoType 加解密类型
-     * @throws IllegalAccessException
+     * @param obj 参数信息
+     * @throws Exception
      */
-    private void handleParameterOrResult(Object obj, CryptoType cryptoType) throws Exception {
-        HashMap<Field, Object> fieldObjectHashMap = new HashMap<>();
-        // 多个参数
+    private void handleParam(Object obj) throws Exception {
+        HashMap<Field, Object> fieldMap = new HashMap<>();
+        // 判断参数类型，如果是mybatis-plus的xxx.getById(id)这种查询，参数类型就不是MapperMethod.ParamMap
         if (obj instanceof MapperMethod.ParamMap) {
             // pagehelper分页插件，分页查询，会拦截两次，第一次查总数，不包含分页参数：参数类型是MapperMethod.ParamMap；第二次查询结果集，包含分页参数：参数类型会转成HashMap
             // mybatis-plus分页插件，分页查询，只会拦截一次（包含查询参数和分页参数，查询总数和结果集），参数类型是MapperMethod.ParamMap
@@ -193,40 +172,50 @@ public class CryptoInterceptor implements Interceptor {
                 Object value = paramMap.get(key);
                 if (value != null) {
                     if (filter(value)) {
+                        // 参数是CharSequence、Number等类型
                         if (keyStr.startsWith(cryptoProperties.getParamPrefix())) {
-                            String ciphertext = getCiphertext(value);
+                            String ciphertext = getCiphertext(keyStr, value);
                             paramMap.put(key, ciphertext);
                         }
                     } else if (value instanceof Collection) {
-                        if (keyStr.startsWith(cryptoProperties.getParamPrefix())) {
+                        // 参数是Collection类型，
+                        // 对于 sql IN/NOT IN (Collection)，对Collection内的值进行加密并不起作用，查询条件还是会使用参数原值，需要在boundSql中进行处理，详见handleBoundSql方法
+                        /*if (keyStr.startsWith(cryptoProperties.getParamPrefix())) {
                             Collection values = (Collection) value;
                             if (CollectionUtil.isNotEmpty(values)) {
                                 Set<Object> ciphertextList = new HashSet<>();
                                 for (Object o : values) {
-                                    ciphertextList.add(getCiphertext(o));
+                                    if (filter(o)) {
+                                        ciphertextList.add(getCiphertext(keyStr, o));
+                                    }
                                 }
                                 paramMap.put(key, ciphertextList);
+                                if (cryptoProperties.isEnableDetailLog()) {
+                                    LOGGER.info("加密参数：{}，加密前：{}，加密后：{}", keyStr, value, ciphertextList);
+                                }
                             }
-                        }
-                    } else if (ParameterUtils.isWrapper(value)) {
+                        }*/
+                    } else if (WrapperParamUtils.isWrapper(value)) {
+                        // 参数是mybatis-plus的Wrapper类型
                         if (!keyStr.startsWith("param")) {
-                            ParameterUtils.handleWrapper(value, cryptoProperties);
+                            WrapperParamUtils.handleWrapper(value, cryptoProperties);
                         }
                     } else {
-                        handleObject(value, value.getClass(), fieldObjectHashMap);
+                        // 参数是实体或者VO类型
+                        getCryptoField(value, value.getClass(), fieldMap);
                     }
                 }
             }
         } else {
             if (obj != null) {
-                handleObject(obj, obj.getClass(), fieldObjectHashMap);
+                getCryptoField(obj, obj.getClass(), fieldMap);
             }
         }
 
-        // 加解密
-        fieldObjectHashMap.keySet().forEach(key -> {
+        // 加密
+        fieldMap.keySet().forEach(key -> {
             try {
-                handleString(key, fieldObjectHashMap.get(key), cryptoType);
+                encryptOrDecrypt(key, fieldMap.get(key), CryptoType.ENCRYPT);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
@@ -234,44 +223,73 @@ public class CryptoInterceptor implements Interceptor {
     }
 
     /**
-     * 聚合父类属性
+     * 处理boundSql，对查询条件有IN/NOT IN的sql特殊处理
      *
-     * @param oClass
-     * @param fields
-     * @return
+     * @param boundSql
+     * @throws Exception
      */
-    private List<Field> mergeField(Class<?> oClass, List<Field> fields) {
-        if (fields == null) {
-            fields = new ArrayList<>();
-        }
-        Class<?> superclass = oClass.getSuperclass();
-        if (superclass != null && !superclass.equals(Object.class) && superclass.getDeclaredFields().length > 0) {
-            mergeField(superclass, fields);
-        }
-        for (Field declaredField : oClass.getDeclaredFields()) {
-            int modifiers = declaredField.getModifiers();
-            if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers) || Modifier.isVolatile(modifiers) || Modifier.isSynchronized(modifiers)) {
-                continue;
+    private void handleBoundSql(BoundSql boundSql) throws Exception {
+        Object parameterObject = boundSql.getParameterObject();
+        if (parameterObject instanceof MapperMethod.ParamMap) {
+            MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameterObject;
+            Set keySet = paramMap.keySet();
+            for (Object key : keySet) {
+                String keyStr = (String) key;
+                if (keyStr.startsWith(cryptoProperties.getParamPrefix())) {
+                    List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+                    for (ParameterMapping parameterMapping : parameterMappings) {
+                        String property = parameterMapping.getProperty();
+                        ParameterMode mode = parameterMapping.getMode();
+                        if (mode == ParameterMode.IN) {
+                            Object val = boundSql.getAdditionalParameter(property);
+                            if (Objects.nonNull(val)) {
+                                boundSql.setAdditionalParameter(property, getCiphertext(property, val));
+                            }
+                        }
+                    }
+                    break;
+                }
             }
-            fields.add(declaredField);
         }
-        return fields;
     }
 
     /**
-     * 处理Object
+     * 处理结果
      *
-     * @param obj
-     * @param oClass
+     * @param obj 结果信息
+     * @throws Exception
+     */
+    private void handleResult(Object obj) throws Exception {
+        HashMap<Field, Object> fieldMap = new HashMap<>();
+        if (obj != null) {
+            getCryptoField(obj, obj.getClass(), fieldMap);
+        }
+
+        // 解密
+        fieldMap.keySet().forEach(key -> {
+            try {
+                encryptOrDecrypt(key, fieldMap.get(key), CryptoType.DECRYPT);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        });
+    }
+
+    /**
+     * 获取对象的加解密属性
+     *
+     * @param obj   对象
+     * @param clazz 对象类型
      * @throws IllegalAccessException
      */
-    private void handleObject(Object obj, Class<?> oClass, HashMap<Field, Object> fieldObjectHashMap) throws IllegalAccessException {
+    private void getCryptoField(Object obj, Class<?> clazz, HashMap<Field, Object> fieldMap) throws IllegalAccessException {
         // 过滤
         if (filter(obj)) {
             return;
         }
 
-        List<Field> fields = mergeField(oClass, null);
+        // 获取对象属性（包含父类属性）
+        List<Field> fields = getField(clazz, null);
         for (Field declaredField : fields) {
             // 静态属性直接跳过
             if (Modifier.isStatic(declaredField.getModifiers())) {
@@ -288,7 +306,7 @@ public class CryptoInterceptor implements Interceptor {
             } else if (value instanceof String) {
                 CryptoField annotation = declaredField.getAnnotation(CryptoField.class);
                 if (annotation != null) {
-                    fieldObjectHashMap.put(declaredField, obj);
+                    fieldMap.put(declaredField, obj);
                 }
             } else if (value instanceof Collection) {
                 Collection coll = (Collection) value;
@@ -297,23 +315,48 @@ public class CryptoInterceptor implements Interceptor {
                         // 默认集合内类型一致
                         break;
                     }
-                    handleObject(o, o.getClass(), fieldObjectHashMap);
+                    getCryptoField(o, o.getClass(), fieldMap);
                 }
             } else {
-                handleObject(value, value.getClass(), fieldObjectHashMap);
+                getCryptoField(value, value.getClass(), fieldMap);
             }
         }
     }
 
     /**
-     * 处理字符，加解密
+     * 获取对象属性（包含父类属性）
+     *
+     * @param clazz  对象类型
+     * @param fields 属性集合
+     * @return
+     */
+    private List<Field> getField(Class<?> clazz, List<Field> fields) {
+        if (fields == null) {
+            fields = new ArrayList<>();
+        }
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass != null && !superclass.equals(Object.class) && superclass.getDeclaredFields().length > 0) {
+            getField(superclass, fields);
+        }
+        for (Field declaredField : clazz.getDeclaredFields()) {
+            int modifiers = declaredField.getModifiers();
+            if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers) || Modifier.isVolatile(modifiers) || Modifier.isSynchronized(modifiers)) {
+                continue;
+            }
+            fields.add(declaredField);
+        }
+        return fields;
+    }
+
+    /**
+     * 加解密处理
      *
      * @param field      字段
      * @param object     对象
      * @param cryptoType 加解密类型
      * @throws Exception
      */
-    private void handleString(Field field, Object object, CryptoType cryptoType) throws Exception {
+    private void encryptOrDecrypt(Field field, Object object, CryptoType cryptoType) throws Exception {
         boolean accessible = field.isAccessible();
         field.setAccessible(true);
         Object value = field.get(object);
@@ -349,8 +392,14 @@ public class CryptoInterceptor implements Interceptor {
             String valueResult;
             if (cryptoType.equals(CryptoType.DECRYPT)) {
                 valueResult = iCrypto.decrypt(cryptoAlgorithm, String.valueOf(value), key, publicKey, privateKey);
+                if (cryptoProperties.isEnableDetailLog()) {
+                    LOGGER.info("解密属性：{}.{}，解密前：{}，解密后：{}", field.getDeclaringClass().getName(), field.getName(), value, valueResult);
+                }
             } else {
                 valueResult = iCrypto.encrypt(cryptoAlgorithm, String.valueOf(value), key, publicKey, privateKey);
+                if (cryptoProperties.isEnableDetailLog()) {
+                    LOGGER.info("加密属性：{}.{}，加密前：{}，加密后：{}", field.getDeclaringClass().getName(), field.getName(), value, valueResult);
+                }
             }
             field.set(object, String.valueOf(valueResult));
             field.setAccessible(accessible);
@@ -364,7 +413,7 @@ public class CryptoInterceptor implements Interceptor {
      * @return 密文
      * @throws Exception
      */
-    private String getCiphertext(Object value) throws Exception {
+    private String getCiphertext(String param, Object value) throws Exception {
         if (Objects.isNull(value)) {
             return null;
         }
@@ -384,6 +433,9 @@ public class CryptoInterceptor implements Interceptor {
         ICrypto iCrypto = (ICrypto) cryptClazz.newInstance();
 
         String ciphertext = iCrypto.encrypt(cryptoAlgorithm, String.valueOf(value), propertiesKey, publicKey, privateKey);
+        if (cryptoProperties.isEnableDetailLog()) {
+            LOGGER.info("加密参数：{}，加密前：{}，加密后：{}", param, value, ciphertext);
+        }
         return ciphertext;
     }
 
@@ -398,6 +450,12 @@ public class CryptoInterceptor implements Interceptor {
                 || float.class.equals(type);
     }
 
+    /**
+     * 过滤对象类型
+     *
+     * @param object 对象
+     * @return
+     */
     private boolean filter(Object object) {
         return object == null
                 || object instanceof CharSequence

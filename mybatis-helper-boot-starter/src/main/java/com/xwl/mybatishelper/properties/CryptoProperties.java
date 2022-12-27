@@ -10,6 +10,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "mybatis-helper.crypto")
 public class CryptoProperties {
+
+    /**
+     * 是否开启加解密日志（默认false），开启后info会记录加解密详情
+     */
+    private boolean enableDetailLog = false;
+
     /**
      * 加密方式（默认SM4）
      */
@@ -39,6 +45,14 @@ public class CryptoProperties {
      * 非对称加密私钥（SM2），不配置使用默认私钥
      */
     private String privateKey = "308193020100301306072a8648ce3d020106082a811ccf5501822d047930770201010420169d98f96e7a3deb145671dd04eefdf54b3c2196ca5569b5fb96a9ff5abe957da00a06082a811ccf5501822da14403420004e6d02503196bda21356390f43e324aa9cb42dbe64204ac4d9e1652fe055e4636702f84f376a54af81ca165d355f3e68d137702b9c715b4ecf70d50b65d9d6e78";
+
+    public boolean isEnableDetailLog() {
+        return enableDetailLog;
+    }
+
+    public void setEnableDetailLog(boolean enableDetailLog) {
+        this.enableDetailLog = enableDetailLog;
+    }
 
     public String getMode() {
         return mode;

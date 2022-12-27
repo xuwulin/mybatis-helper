@@ -178,7 +178,7 @@
         可以包含零个或多个元素，标识这个appender将会添加到这个logger。
         如果level配置的是info级别，则debug级别的日志就不会输出到日志文件，只会输出比当前设置的日志级别高的日志，要输出sql语句，应设置level级别为debug
     -->
-    <root level="info">
+    <root level="debug">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="DEBUG_FILE"/>
         <appender-ref ref="INFO_FILE"/>

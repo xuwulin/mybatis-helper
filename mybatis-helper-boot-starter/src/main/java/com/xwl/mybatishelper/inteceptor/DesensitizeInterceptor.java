@@ -39,6 +39,7 @@ public class DesensitizeInterceptor implements Interceptor {
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
+        LOGGER.info("==>com.xwl.mybatishelper.inteceptor.DesensitizeInterceptor 拦截方法：" + invocation.getMethod());
         return selectHandle(invocation);
     }
 
@@ -68,16 +69,17 @@ public class DesensitizeInterceptor implements Interceptor {
             boundSql = (BoundSql) args[5];
         }
 
+        // 执行查询
         List<Object> resultList = executor.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
         for (Object object : resultList) {
-            HashMap<Field, Object> fieldObjectHashMap = new HashMap<>();
+            HashMap<Field, Object> fieldMap = new HashMap<>();
             if (object != null) {
-                handleObject(object, object.getClass(), fieldObjectHashMap);
+                getDesensitizedField(object, object.getClass(), fieldMap);
             }
-            // 对查询结果进行脱敏处理
-            fieldObjectHashMap.keySet().forEach(key -> {
+            fieldMap.keySet().forEach(key -> {
                 try {
-                    desensitizeHandle(key, fieldObjectHashMap.get(key));
+                    // 对查询结果进行脱敏处理
+                    desensitizeHandle(key, fieldMap.get(key));
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage(), e);
                 }
@@ -86,53 +88,20 @@ public class DesensitizeInterceptor implements Interceptor {
         return resultList;
     }
 
-    private boolean filter(Object object) {
-        return object == null
-                || object instanceof CharSequence
-                || object instanceof Number
-                || object instanceof Collection
-                || object instanceof Date
-                || object instanceof ChronoLocalDate;
-    }
-
     /**
-     * 聚合父类属性
+     * 获取对象的脱敏属性
      *
-     * @param oClass
-     * @param fields
-     * @return
+     * @param obj   对象
+     * @param clazz 对象类型
+     * @throws Exception
      */
-    private List<Field> mergeField(Class<?> oClass, List<Field> fields) {
-        if (fields == null) {
-            fields = new ArrayList<>();
-        }
-        Class<?> superclass = oClass.getSuperclass();
-        if (superclass != null && !superclass.equals(Object.class) && superclass.getDeclaredFields().length > 0) {
-            mergeField(superclass, fields);
-        }
-        for (Field declaredField : oClass.getDeclaredFields()) {
-            int modifiers = declaredField.getModifiers();
-            if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers) || Modifier.isVolatile(modifiers) || Modifier.isSynchronized(modifiers)) {
-                continue;
-            }
-            fields.add(declaredField);
-        }
-        return fields;
-    }
-
-    /**
-     * 处理Object
-     *
-     * @param obj
-     * @param oClass
-     * @throws IllegalAccessException
-     */
-    private void handleObject(Object obj, Class<?> oClass, HashMap<Field, Object> fieldObjectHashMap) throws Exception {
+    private void getDesensitizedField(Object obj, Class<?> clazz, HashMap<Field, Object> fieldMap) throws Exception {
         // 过滤
         if (filter(obj)) {
             return;
         }
-        List<Field> fields = mergeField(oClass, null);
+        // 获取对象属性（包含父类属性）
+        List<Field> fields = getField(clazz, null);
         for (Field declaredField : fields) {
             // 静态属性直接跳过
             if (Modifier.isStatic(declaredField.getModifiers())) {
@@ -149,7 +118,7 @@ public class DesensitizeInterceptor implements Interceptor {
             } else if (value instanceof String) {
                 DesensitizedField annotation = declaredField.getAnnotation(DesensitizedField.class);
                 if (annotation != null) {
-                    fieldObjectHashMap.put(declaredField, obj);
+                    fieldMap.put(declaredField, obj);
                 }
             } else if (value instanceof Collection) {
                 Collection coll = (Collection) value;
@@ -158,21 +127,45 @@ public class DesensitizeInterceptor implements Interceptor {
                         // 默认集合内类型一致
                         break;
                     }
-                    handleObject(o, o.getClass(), fieldObjectHashMap);
+                    getDesensitizedField(o, o.getClass(), fieldMap);
                 }
             } else {
-                handleObject(value, value.getClass(), fieldObjectHashMap);
+                getDesensitizedField(value, value.getClass(), fieldMap);
             }
         }
     }
 
     /**
+     * 获取对象属性（包含父类属性）
+     *
+     * @param clazz  对象类型
+     * @param fields 属性集合
+     * @return
+     */
+    private List<Field> getField(Class<?> clazz, List<Field> fields) {
+        if (fields == null) {
+            fields = new ArrayList<>();
+        }
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass != null && !superclass.equals(Object.class) && superclass.getDeclaredFields().length > 0) {
+            getField(superclass, fields);
+        }
+        for (Field declaredField : clazz.getDeclaredFields()) {
+            int modifiers = declaredField.getModifiers();
+            if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers) || Modifier.isVolatile(modifiers) || Modifier.isSynchronized(modifiers)) {
+                continue;
+            }
+            fields.add(declaredField);
+        }
+        return fields;
+    }
+
+    /**
      * 脱敏处理
      *
-     * @param field
-     * @param object
-     * @throws IllegalAccessException
-     * @throws InstantiationException
+     * @param field  字段
+     * @param object 对象
+     * @throws Exception
      */
     private void desensitizeHandle(Field field, Object object) throws Exception {
         boolean accessible = field.isAccessible();
@@ -195,10 +188,27 @@ public class DesensitizeInterceptor implements Interceptor {
                 iDesensitized = desensitizedImpl.newInstance();
             }
             String desensitizeValue = iDesensitized.execute(String.valueOf(value), replacement, annotation.type());
-            LOGGER.debug("脱敏前：{}，脱敏后：{}", value, desensitizeValue);
+            if (desensitizedProperties.isEnableDetailLog()) {
+                LOGGER.info("脱敏属性：{}.{}，脱敏前：{}，脱敏后：{}", field.getDeclaringClass().getName(), field.getName(), value, desensitizeValue);
+            }
             field.set(object, String.valueOf(desensitizeValue));
             field.setAccessible(accessible);
         }
+    }
+
+    /**
+     * 过滤对象类型
+     *
+     * @param object 对象
+     * @return
+     */
+    private boolean filter(Object object) {
+        return object == null
+                || object instanceof CharSequence
+                || object instanceof Number
+                || object instanceof Collection
+                || object instanceof Date
+                || object instanceof ChronoLocalDate;
     }
 
     @Override
