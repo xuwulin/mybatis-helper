@@ -16,8 +16,6 @@ mybatis-helper是mybatis插件合集：目前提供字段存取加解密、脱�
 
 > **[Github](https://github.com/xuwulin/mybatis-helper)**
 
-
-
 ### 参与贡献
 
 欢迎各路好汉一起来参与完善 mybatis-helper，期待你的 PR！
@@ -46,14 +44,14 @@ Maven：
 <dependency>
     <groupId>io.github.xuwulin</groupId>
     <artifactId>mybatis-helper-boot-starter</artifactId>
-    <version>1.0.2</version>
+    <version>latest</version>
 </dependency>
 ```
 
 Gradle：
 
 ```gr
-compile group: 'io.github.xuwulin', name: 'mybatis-helper-boot-starter', version: '1.0.2'
+compile group: 'io.github.xuwulin', name: 'mybatis-helper-boot-starter', version: 'latest'
 ```
 
 ### 配置
@@ -64,6 +62,8 @@ compile group: 'io.github.xuwulin', name: 'mybatis-helper-boot-starter', version
 mybatis-helper:
   # 加解密
   crypto:
+  	# 是否开启加解密日志（默认false），开启后info会记录加解密详情
+    enable-detail-log: true
     # 加密方式（默认SM4）
     mode: SM4
     # 参数加密前缀（默认enc_，@Param注解value前缀，如@Param("enc_username") String username，表示username需要加密）
@@ -78,6 +78,8 @@ mybatis-helper:
     privateKey: 308193020100301306072a8648ce3d020106082a811ccf5501822d047930770201010420169d98f96e7a3deb145671dd04eefdf54b3c2196ca5569b5fb96a9ff5abe957da00a06082a811ccf5501822da14403420004e6d02503196bda21356390f43e324aa9cb42dbe64204ac4d9e1652fe055e4636702f84f376a54af81ca165d355f3e68d137702b9c715b4ecf70d50b65d9d6e78
   # 脱敏
   desensitized:
+  	# 是否开启脱敏日志（默认false），开启后info会记录加脱敏详情
+    enable-detail-log: true
     # 填充符号
     replacement: '*'
     # 脱敏类全类名
@@ -86,16 +88,18 @@ mybatis-helper:
 
 #### 配置说明
 
-| 配置                                    | 默认值                                                     | 说明                                                         |
-| :-------------------------------------- | :--------------------------------------------------------- | ------------------------------------------------------------ |
-| mybatis-helper.crypto.mode              | SM4                                                        | 加密方式，默认国密SM4                                        |
-| mybatis-helper.crypto.param-prefix      | enc_                                                       | @Param注解value前缀，如@Param("enc_username") String username，表示username需要加密） |
-| mybatis-helper.crypto.class-name        | com.xwl.mybatishelper.service.impl.DefaultCryptoImpl       | 加解密类全类名，可自定义加解密方式，需要实现ICrypto接口      |
-| mybatis-helper.crypto.key               | a3deb145671dd04e                                           | SM4对称加密密钥（必须为16位字符串），【建议替换默认值】      |
-| mybatis-helper.crypto.publicKey         | 3059301306072xxx...                                        | SM2非对称加密公钥，【建议替换默认值】                        |
-| mybatis-helper.crypto.privateKey        | 3081930201003xxx...                                        | SM2非对称加密私钥，【建议替换默认值】                        |
-| mybatis-helper.desensitized.replacement | *                                                          | 脱敏填充值                                                   |
-| mybatis-helper.desensitized.class-name  | com.xwl.mybatishelper.service.impl.DefaultDesensitizedImpl | 脱敏类全类名，可自定义脱敏方式，需要实现IDesensitized接口    |
+| 配置                                          | 默认值                                                     | 说明                                                         |
+| :-------------------------------------------- | :--------------------------------------------------------- | ------------------------------------------------------------ |
+| mybatis-helper.crypto.enable-detail-log       | false                                                      | 开启后info会记录加解密详情                                   |
+| mybatis-helper.crypto.mode                    | SM4                                                        | 加密方式，默认国密SM4                                        |
+| mybatis-helper.crypto.param-prefix            | enc_                                                       | @Param注解value前缀，如@Param("enc_username") String username，表示username需要加密） |
+| mybatis-helper.crypto.class-name              | com.xwl.mybatishelper.service.impl.DefaultCryptoImpl       | 加解密类全类名，可自定义加解密方式，需要实现ICrypto接口      |
+| mybatis-helper.crypto.key                     | a3deb145671dd04e                                           | SM4对称加密密钥（必须为16位字符串），【建议替换默认值】      |
+| mybatis-helper.crypto.publicKey               | 3059301306072xxx...                                        | SM2非对称加密公钥，【建议替换默认值】                        |
+| mybatis-helper.crypto.privateKey              | 3081930201003xxx...                                        | SM2非对称加密私钥，【建议替换默认值】                        |
+| mybatis-helper.desensitized.enable-detail-log | false                                                      | 开启后info会记录加脱敏详情                                   |
+| mybatis-helper.desensitized.replacement       | *                                                          | 脱敏填充值                                                   |
+| mybatis-helper.desensitized.class-name        | com.xwl.mybatishelper.service.impl.DefaultDesensitizedImpl | 脱敏类全类名，可自定义脱敏方式，需要实现IDesensitized接口    |
 
 ### 注解
 
@@ -270,10 +274,6 @@ public class SysUser {
 ### 用法
 
 略：同自定义加解密
-
-### 查询参数加密支持
-
-
 
 ## 案例
 
