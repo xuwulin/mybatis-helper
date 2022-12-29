@@ -3,9 +3,7 @@ package com.xwl.mybatishelper.mybatisplus.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
-import com.xwl.mybatishelper.mybatisplus.vo.IdNumberVO;
-import com.xwl.mybatishelper.mybatisplus.vo.OutVO;
-import com.xwl.mybatishelper.mybatisplus.vo.QueryUserVO;
+import com.xwl.mybatishelper.mybatisplus.vo.*;
 
 import java.util.List;
 import java.util.Map;
@@ -176,8 +174,17 @@ public interface ISysUserService extends IService<SysUser> {
 
     /**
      * 查询结果为vo
+     *
      * @param vo 参数
      * @return
      */
     OutVO outVo(QueryUserVO vo);
+
+    /**
+     * vo有继承情况
+     *
+     * @param vo
+     * @return
+     */
+    OutExtendsVO testExtendsVo(ParamExtendsVO vo);
 }

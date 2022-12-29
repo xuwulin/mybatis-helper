@@ -3,9 +3,7 @@ package com.xwl.mybatishelper.mybatisplus.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
-import com.xwl.mybatishelper.mybatisplus.vo.IdNumberVO;
-import com.xwl.mybatishelper.mybatisplus.vo.OutVO;
-import com.xwl.mybatishelper.mybatisplus.vo.QueryUserVO;
+import com.xwl.mybatishelper.mybatisplus.vo.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -107,7 +105,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
     /**
      * 分页查询
      *
-     * @param username 用户身份证号码
+     * @param idNumber 用户身份证号码
      * @return
      */
     List<SysUser> pagehelperBySql(@Param("enc_idNumber") String idNumber);
@@ -181,4 +179,12 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @return
      */
     OutVO outVo(@Param("vo") QueryUserVO vo);
+
+    /**
+     * vo有继承情况
+     *
+     * @param vo
+     * @return
+     */
+    OutExtendsVO testExtendsVo(@Param("vo") ParamExtendsVO vo);
 }

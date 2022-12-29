@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.xwl.mybatishelper.annotation.CryptoField;
 import com.xwl.mybatishelper.enums.ConditionEnum;
 import com.xwl.mybatishelper.enums.CryptoAlgorithm;
 import com.xwl.mybatishelper.mapping.ParameterColumnMapping;
@@ -15,13 +16,13 @@ import com.xwl.mybatishelper.mapping.ParameterValueMapping;
 import com.xwl.mybatishelper.properties.CryptoProperties;
 import com.xwl.mybatishelper.service.ICrypto;
 import com.xwl.mybatishelper.service.impl.NoneCryptoImpl;
-import com.xwl.mybatishelper.annotation.CryptoField;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.parsing.GenericTokenParser;
 import org.apache.ibatis.reflection.MetaObject;
@@ -32,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.xwl.mybatishelper.util.GenericTypeUtils.getInterfaceGeneric;
 
 /**
  * mybatis-plus wrapper参数工具类
@@ -298,10 +301,12 @@ public class WrapperParamUtils {
     /**
      * 处理mybatis-plus的Wrapper（QueryWrapper、LambdaQueryWrapper、UpdateWrapper、LambdaUpdateWrapper）
      *
-     * @param obj mybatis-plus的Wrapper条件
+     * @param mappedStatement  mappedStatement
+     * @param obj              mybatis-plus的Wrapper条件
+     * @param cryptoProperties 加密配置
      * @throws Exception
      */
-    public static void handleWrapper(Object obj, CryptoProperties cryptoProperties) throws Exception {
+    public static void handleWrapper(MappedStatement mappedStatement, Object obj, CryptoProperties cryptoProperties) throws Exception {
         AbstractWrapper wrapper = (AbstractWrapper) obj;
         // 获取查询条件封装真实的参数名，列名
         List<ParameterValueMapping> parameterMappingList = getParameterMappingList(wrapper);
@@ -310,6 +315,17 @@ public class WrapperParamUtils {
         Map paramNameValuePairs = wrapper.getParamNameValuePairs();
         // wrapper泛型实体
         Object entity = wrapper.getEntity();
+
+        if (Objects.isNull(entity)) {
+            // 如果从wrapper条件中获取不到entity，则通过mapper去获取继承的BaseMapper中的泛型类型
+            String mapper = mappedStatement.getId().substring(0, mappedStatement.getId().lastIndexOf("."));
+            Class<?> mapperClazz = Class.forName(mapper);
+            Class<?> interfaceGeneric = getInterfaceGeneric(mapperClazz, 0);
+            if (Objects.nonNull(interfaceGeneric)) {
+                entity = interfaceGeneric.newInstance();
+            }
+        }
+
         if (Objects.nonNull(entity)) {
             TableInfo tableInfo = TableInfoHelper.getTableInfo(entity.getClass());
             List<TableFieldInfo> fieldList = tableInfo.getFieldList();

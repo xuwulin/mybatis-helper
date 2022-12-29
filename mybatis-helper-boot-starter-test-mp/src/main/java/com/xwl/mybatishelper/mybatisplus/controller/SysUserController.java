@@ -122,7 +122,7 @@ public class SysUserController {
 
     @GetMapping("/getByLambdaQueryWrapper")
     public Object getByLambdaQueryWrapper(String idNumber) {
-        LambdaQueryWrapper wrapper = Wrappers.lambdaQuery(new SysUser())
+        LambdaQueryWrapper wrapper = Wrappers.<SysUser>lambdaQuery()
                 .eq(SysUser::getIdNumber, idNumber);
         return iSysUserService.getOne(wrapper);
     }
@@ -144,6 +144,21 @@ public class SysUserController {
     @GetMapping("/getByNewQueryWrapper")
     public Object getByNewQueryWrapper(String idNumber) {
         QueryWrapper<SysUser> wrapper = new QueryWrapper<>(new SysUser())
+                .eq("id_number", idNumber);
+        return iSysUserService.getOne(wrapper);
+    }
+
+    @GetMapping("/getByNewQueryWrapperResultString")
+    public Object getByNewQueryWrapperResultString(String idNumber) {
+        QueryWrapper<SysUser> wrapper = new QueryWrapper<>(new SysUser())
+                .eq("id_number", idNumber)
+                .select("password");
+        return iSysUserService.getObj(wrapper, String::valueOf);
+    }
+
+    @GetMapping("/getByQueryWrapperWithoutEntity")
+    public Object getByQueryWrapperWithoutEntity(String idNumber) {
+        QueryWrapper wrapper = Wrappers.query()
                 .eq("id_number", idNumber);
         return iSysUserService.getOne(wrapper);
     }
@@ -390,7 +405,7 @@ public class SysUserController {
     }
 
     /**
-     * 不支持此钟方式查询需加密查询的字段
+     * 不支持此种方式查询需加密查询的字段
      *
      * @param users
      * @return

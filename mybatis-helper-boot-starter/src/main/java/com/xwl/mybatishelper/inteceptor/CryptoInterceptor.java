@@ -1,14 +1,13 @@
 package com.xwl.mybatishelper.inteceptor;
 
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.xwl.mybatishelper.annotation.CryptoField;
 import com.xwl.mybatishelper.enums.CryptoAlgorithm;
 import com.xwl.mybatishelper.enums.CryptoType;
+import com.xwl.mybatishelper.properties.CryptoProperties;
 import com.xwl.mybatishelper.service.ICrypto;
 import com.xwl.mybatishelper.service.impl.NoneCryptoImpl;
 import com.xwl.mybatishelper.util.WrapperParamUtils;
-import com.xwl.mybatishelper.annotation.CryptoField;
-import com.xwl.mybatishelper.properties.CryptoProperties;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -112,7 +111,7 @@ public class CryptoInterceptor implements Interceptor {
         BoundSql boundSql;
 
         // 处理参数作为条件查询需要加密
-        handleParam(paramObj);
+        handleParam(mappedStatement, paramObj);
 
         // 由于逻辑关系，只会进入一次
         if (args.length == 4) {
@@ -149,17 +148,18 @@ public class CryptoInterceptor implements Interceptor {
      */
     private Object updateHandle(Invocation invocation) throws Exception {
         // 处理参数
-        handleParam(invocation.getArgs()[1]);
+        handleParam((MappedStatement) invocation.getArgs()[0], invocation.getArgs()[1]);
         return invocation.proceed();
     }
 
     /**
      * 处理参数
      *
-     * @param obj 参数信息
+     * @param mappedStatement mappedStatement
+     * @param obj             参数信息
      * @throws Exception
      */
-    private void handleParam(Object obj) throws Exception {
+    private void handleParam(MappedStatement mappedStatement, Object obj) throws Exception {
         HashMap<Field, Object> fieldMap = new HashMap<>();
         // 判断参数类型，如果是mybatis-plus的xxx.getById(id)这种查询，参数类型就不是MapperMethod.ParamMap
         if (obj instanceof MapperMethod.ParamMap) {
@@ -198,7 +198,7 @@ public class CryptoInterceptor implements Interceptor {
                     } else if (WrapperParamUtils.isWrapper(value)) {
                         // 参数是mybatis-plus的Wrapper类型
                         if (!keyStr.startsWith("param")) {
-                            WrapperParamUtils.handleWrapper(value, cryptoProperties);
+                            WrapperParamUtils.handleWrapper(mappedStatement, value, cryptoProperties);
                         }
                     } else {
                         // 参数是实体或者VO类型

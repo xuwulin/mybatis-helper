@@ -2,11 +2,11 @@ package com.xwl.mybatishelper.mybatisplus.test;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
 import com.xwl.mybatishelper.mybatisplus.service.ISysUserService;
+import com.xwl.mybatishelper.mybatisplus.vo.OutExtendsVO;
 import com.xwl.mybatishelper.mybatisplus.vo.OutVO;
+import com.xwl.mybatishelper.mybatisplus.vo.ParamExtendsVO;
 import com.xwl.mybatishelper.mybatisplus.vo.QueryUserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -38,6 +38,18 @@ public class QueryVoTest {
         QueryUserVO vo = new QueryUserVO();
         vo.setIdNumber("372522195710100019");
         OutVO outVO = iSysUserService.outVo(vo);
+        String pretty = JSON.toJSONString(outVO, SerializerFeature.PrettyFormat);
+        log.info("query result:\n{}", pretty);
+    }
+
+    @Test
+    public void testExtendsVo() {
+        ParamExtendsVO vo = new ParamExtendsVO();
+        vo.setIdNumber("372522195710100019");
+        vo.setAccount("15888888888");
+        vo.setUsername("张三");
+        vo.setPassword("123456");
+        OutExtendsVO outVO = iSysUserService.testExtendsVo(vo);
         String pretty = JSON.toJSONString(outVO, SerializerFeature.PrettyFormat);
         log.info("query result:\n{}", pretty);
     }

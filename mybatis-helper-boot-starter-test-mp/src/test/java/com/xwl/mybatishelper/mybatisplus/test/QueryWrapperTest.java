@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author xwl
@@ -39,9 +38,29 @@ public class QueryWrapperTest {
     }
 
     @Test
+    public void testLambdaQueryWrapperWithoutEntity() {
+        String idNumber = "372522195710100019";
+        LambdaQueryWrapper wrapper = Wrappers.<SysUser>lambdaQuery()
+                .eq(SysUser::getIdNumber, idNumber);
+        SysUser sysUser = iSysUserService.getOne(wrapper);
+        String pretty = JSON.toJSONString(sysUser, SerializerFeature.PrettyFormat);
+        log.info("query result:\n{}", pretty);
+    }
+
+    @Test
     public void testNewLambdaQueryWrapper() {
         String idNumber = "372522195710100019";
         LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>(new SysUser())
+                .eq(SysUser::getIdNumber, idNumber);
+        SysUser sysUser = iSysUserService.getOne(wrapper);
+        String pretty = JSON.toJSONString(sysUser, SerializerFeature.PrettyFormat);
+        log.info("query result:\n{}", pretty);
+    }
+
+    @Test
+    public void testNewLambdaQueryWrapperWithoutEntity() {
+        String idNumber = "372522195710100019";
+        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<SysUser>()
                 .eq(SysUser::getIdNumber, idNumber);
         SysUser sysUser = iSysUserService.getOne(wrapper);
         String pretty = JSON.toJSONString(sysUser, SerializerFeature.PrettyFormat);
@@ -59,9 +78,29 @@ public class QueryWrapperTest {
     }
 
     @Test
+    public void testQueryWrapperWithoutEntity() {
+        String idNumber = "372522195710100019";
+        QueryWrapper<SysUser> wrapper = Wrappers.<SysUser>query()
+                .eq("id_number", idNumber);
+        SysUser sysUser = iSysUserService.getOne(wrapper);
+        String pretty = JSON.toJSONString(sysUser, SerializerFeature.PrettyFormat);
+        log.info("query result:\n{}", pretty);
+    }
+
+    @Test
     public void testNewQueryWrapper() {
         String idNumber = "372522195710100019";
         QueryWrapper<SysUser> wrapper = new QueryWrapper<>(new SysUser())
+                .eq("id_number", idNumber);
+        SysUser sysUser = iSysUserService.getOne(wrapper);
+        String pretty = JSON.toJSONString(sysUser, SerializerFeature.PrettyFormat);
+        log.info("query result:\n{}", pretty);
+    }
+
+    @Test
+    public void testNewQueryWrapperWithoutEntity() {
+        String idNumber = "372522195710100019";
+        QueryWrapper wrapper = new QueryWrapper<>()
                 .eq("id_number", idNumber);
         SysUser sysUser = iSysUserService.getOne(wrapper);
         String pretty = JSON.toJSONString(sysUser, SerializerFeature.PrettyFormat);

@@ -111,4 +111,8 @@
     <select id="outVo" resultType="com.xwl.mybatishelper.mybatisplus.vo.OutVO">
         SELECT * FROM sys_user WHERE id_number = #{vo.idNumber}
     </select>
+
+    <select id="testExtendsVo" resultType="com.xwl.mybatishelper.mybatisplus.vo.OutExtendsVO">
+        SELECT * FROM sys_user WHERE id_number = #{vo.idNumber} AND account = #{vo.account} AND username = #{vo.username} AND password = #{vo.password}
+    </select>
 </mapper>

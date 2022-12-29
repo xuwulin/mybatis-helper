@@ -7,9 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
 import com.xwl.mybatishelper.mybatisplus.service.ISysUserService;
 import com.xwl.mybatishelper.mybatisplus.mapper.SysUserMapper;
-import com.xwl.mybatishelper.mybatisplus.vo.IdNumberVO;
-import com.xwl.mybatishelper.mybatisplus.vo.OutVO;
-import com.xwl.mybatishelper.mybatisplus.vo.QueryUserVO;
+import com.xwl.mybatishelper.mybatisplus.vo.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -125,5 +123,10 @@ public class ISysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> imp
     @Override
     public OutVO outVo(QueryUserVO vo) {
         return baseMapper.outVo(vo);
+    }
+
+    @Override
+    public OutExtendsVO testExtendsVo(ParamExtendsVO vo) {
+        return baseMapper.testExtendsVo(vo);
     }
 }
