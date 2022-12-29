@@ -44,14 +44,14 @@ Maven：
 <dependency>
     <groupId>io.github.xuwulin</groupId>
     <artifactId>mybatis-helper-boot-starter</artifactId>
-    <version>latest</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 
 Gradle：
 
 ```gr
-compile group: 'io.github.xuwulin', name: 'mybatis-helper-boot-starter', version: 'latest'
+compile group: 'io.github.xuwulin', name: 'mybatis-helper-boot-starter', version: '1.0.4'
 ```
 
 ### 配置
@@ -559,25 +559,19 @@ UpdateWrapper<SysUser> wrapper = Wrappers.update(new SysUser()).eq("id_number", 
 LambdaUpdateWrapper<SysUser> wrapper = new LambdaUpdateWrapper<>(new SysUser()).eq(SysUser::getIdNumber, "");
 UpdateWrapper<SysUser> wrapper = new UpdateWrapper<>(new SysUser()).eq("id_number", "");
 
-// 查询，推荐使用Wrappers.lambdaQuery构建查询条件
-LambdaQueryWrapper wrapper = Wrappers.lambdaQuery(new SysUser()).eq(SysUser::getIdNumber, "");
-QueryWrapper<SysUser> wrapper = Wrappers.query(new SysUser()).eq("id_number", "");
-
-LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>(new SysUser()).eq(SysUser::getIdNumber, "");
-QueryWrapper<SysUser> wrapper = new QueryWrapper<>(new SysUser()).eq("id_number", ""); 
-```
-
-不支持写法：获取不到实体类型
-
-```java
-// 更新
 LambdaUpdateWrapper<SysUser> wrapper = Wrappers.<SysUser>lambdaUpdate().eq(SysUser::getIdNumber, "");
 UpdateWrapper<SysUser> wrapper = Wrappers.<SysUser>update().eq("id_number", "");
 
 LambdaUpdateWrapper<SysUser> wrapper = new LambdaUpdateWrapper<SysUser>().eq(SysUser::getIdNumber, "");
 UpdateWrapper<SysUser> wrapper = new UpdateWrapper<>().eq("id_number", "");
 
-// 查询
+// 查询，推荐使用Wrappers.lambdaQuery构建查询条件
+LambdaQueryWrapper wrapper = Wrappers.lambdaQuery(new SysUser()).eq(SysUser::getIdNumber, "");
+QueryWrapper<SysUser> wrapper = Wrappers.query(new SysUser()).eq("id_number", "");
+
+LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>(new SysUser()).eq(SysUser::getIdNumber, "");
+QueryWrapper<SysUser> wrapper = new QueryWrapper<>(new SysUser()).eq("id_number", ""); 
+
 LambdaQueryWrapper<SysUser> wrapper = Wrappers.<SysUser>lambdaQuery().eq(SysUser::getIdNumber, "");
 QueryWrapper<SysUser> wrapper = Wrappers.<SysUser>query().eq("id_number", "");
 
