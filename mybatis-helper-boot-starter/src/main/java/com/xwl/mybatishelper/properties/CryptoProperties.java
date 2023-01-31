@@ -17,7 +17,7 @@ public class CryptoProperties {
     private boolean enableDetailLog = false;
 
     /**
-     * 加密方式（默认SM4）
+     * 加解密方式（默认SM4）
      */
     private String mode = "SM4";
 

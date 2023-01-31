@@ -8,7 +8,6 @@ import com.xwl.mybatishelper.properties.CryptoProperties;
 import com.xwl.mybatishelper.service.ICrypto;
 import com.xwl.mybatishelper.service.impl.NoneCryptoImpl;
 import com.xwl.mybatishelper.util.WrapperParamUtils;
-import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
@@ -111,7 +110,7 @@ public class CryptoInterceptor implements Interceptor {
         BoundSql boundSql;
 
         // 处理参数，查询参数加密
-        HashMap<Field, Object> fieldMap = handleParam(mappedStatement, paramObj);
+        handleParam(mappedStatement, paramObj, CryptoType.ENCRYPT);
 
         // 由于逻辑关系，只会进入一次
         if (args.length == 4) {
@@ -125,7 +124,7 @@ public class CryptoInterceptor implements Interceptor {
             boundSql = (BoundSql) args[5];
 
             // 对查询条件有IN/NOT IN的sql特殊处理
-            handleBoundSql(boundSql);
+            handleBoundSql(boundSql, CryptoType.ENCRYPT);
         }
 
         // 执行查询
@@ -135,8 +134,8 @@ public class CryptoInterceptor implements Interceptor {
             handleResult(result);
         }
 
-        // 处理参数，查询/更新参数解密，还原参数
-        handleParam(fieldMap);
+        // 处理参数，查询参数解密
+        handleParam(mappedStatement, paramObj, CryptoType.DECRYPT);
         return resultList;
     }
 
@@ -148,22 +147,28 @@ public class CryptoInterceptor implements Interceptor {
      * @throws Exception
      */
     private Object updateHandle(Invocation invocation) throws Exception {
-        // 处理参数
-        HashMap<Field, Object> fieldMap = handleParam((MappedStatement) invocation.getArgs()[0], invocation.getArgs()[1]);
+        // 拦截方法参数
+        Object[] args = invocation.getArgs();
+        // MappedStatement维护了一条<select|update|delete|insert>节点的封装
+        MappedStatement mappedStatement = (MappedStatement) args[0];
+        Object paramObj = args[1];
+        // 处理参数，更新参数加密
+        handleParam(mappedStatement, paramObj, CryptoType.ENCRYPT);
         Object proceed = invocation.proceed();
-        // 处理参数，查询/更新参数解密，还原参数
-        handleParam(fieldMap);
+        // 处理参数，更新参数解密
+        handleParam(mappedStatement, paramObj, CryptoType.DECRYPT);
         return proceed;
     }
 
     /**
-     * 处理参数，查询/更新参数加密
+     * 处理参数，（查询/更新）参数（加密/解密）
      *
      * @param mappedStatement mappedStatement
      * @param obj             参数信息
+     * @param cryptoType      加解密类型
      * @throws Exception
      */
-    private HashMap<Field, Object> handleParam(MappedStatement mappedStatement, Object obj) throws Exception {
+    private void handleParam(MappedStatement mappedStatement, Object obj, CryptoType cryptoType) throws Exception {
         HashMap<Field, Object> fieldMap = new HashMap<>();
         // 判断参数类型，如果是mybatis-plus的xxxService.getById(id)/xxxMapper.selectById(id)这种查询，参数类型就不是MapperMethod.ParamMap
         if (obj instanceof HashMap) {
@@ -178,7 +183,7 @@ public class CryptoInterceptor implements Interceptor {
                     if (filter(value)) {
                         // 参数是CharSequence、Number等类型
                         if (keyStr.startsWith(cryptoProperties.getParamPrefix())) {
-                            String ciphertext = getCiphertext(keyStr, value);
+                            String ciphertext = getCiphertextOrPlaintext(keyStr, value, cryptoType);
                             paramMap.put(key, ciphertext);
                         }
                     } else if (value instanceof Collection) {
@@ -202,7 +207,7 @@ public class CryptoInterceptor implements Interceptor {
                     } else if (WrapperParamUtils.isWrapper(value)) {
                         // 参数是mybatis-plus的Wrapper类型
                         if (!keyStr.startsWith("param")) {
-                            WrapperParamUtils.handleWrapper(mappedStatement, value, cryptoProperties);
+                            WrapperParamUtils.handleWrapper(mappedStatement, value, cryptoProperties, cryptoType);
                         }
                     } else {
                         // 参数是实体或者VO类型
@@ -216,32 +221,10 @@ public class CryptoInterceptor implements Interceptor {
             }
         }
 
-        // 加密
+        // 加密/解密
         fieldMap.keySet().forEach(key -> {
             try {
-                if (cryptoProperties.isEnableDetailLog()) {
-                    LOGGER.info("参数加密...");
-                }
-                encryptOrDecrypt(key, fieldMap.get(key), CryptoType.ENCRYPT);
-            } catch (Exception e) {
-                LOGGER.error(e.getMessage(), e);
-            }
-        });
-        return fieldMap;
-    }
-
-    /**
-     * 处理参数，查询/更新参数解密，还原参数
-     *
-     * @param fieldMap 参数
-     */
-    private void handleParam(HashMap<Field, Object> fieldMap) {
-        fieldMap.keySet().forEach(key -> {
-            try {
-                if (cryptoProperties.isEnableDetailLog()) {
-                    LOGGER.info("参数解密...");
-                }
-                encryptOrDecrypt(key, fieldMap.get(key), CryptoType.DECRYPT);
+                encryptOrDecrypt(key, fieldMap.get(key), cryptoType);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
@@ -251,13 +234,14 @@ public class CryptoInterceptor implements Interceptor {
     /**
      * 处理boundSql，对查询条件有IN/NOT IN的sql特殊处理
      *
-     * @param boundSql
+     * @param boundSql   boundSql
+     * @param cryptoType 加解密方式
      * @throws Exception
      */
-    private void handleBoundSql(BoundSql boundSql) throws Exception {
+    private void handleBoundSql(BoundSql boundSql, CryptoType cryptoType) throws Exception {
         Object parameterObject = boundSql.getParameterObject();
-        if (parameterObject instanceof MapperMethod.ParamMap) {
-            MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) parameterObject;
+        if (parameterObject instanceof HashMap) {
+            HashMap paramMap = (HashMap) parameterObject;
             Set keySet = paramMap.keySet();
             for (Object key : keySet) {
                 String keyStr = (String) key;
@@ -269,7 +253,7 @@ public class CryptoInterceptor implements Interceptor {
                         if (mode == ParameterMode.IN) {
                             Object val = boundSql.getAdditionalParameter(property);
                             if (Objects.nonNull(val)) {
-                                boundSql.setAdditionalParameter(property, getCiphertext(property, val));
+                                boundSql.setAdditionalParameter(property, getCiphertextOrPlaintext(property, val, cryptoType));
                             }
                         }
                     }
@@ -403,12 +387,12 @@ public class CryptoInterceptor implements Interceptor {
             if (StrUtil.isBlank(key)) {
                 key = propertiesKey;
             }
-            // 加密算法（优先使用注解上的配置）
+            // 加解密算法（优先使用注解上的配置）
             CryptoAlgorithm cryptoAlgorithm = annotation.algorithm();
             if (cryptoAlgorithm == null || cryptoAlgorithm == CryptoAlgorithm.NONE) {
                 cryptoAlgorithm = CryptoAlgorithm.valueOf(cryptoProperties.getMode());
             }
-            // 加密实现（优先使用注解上的配置）
+            // 加解密实现（优先使用注解上的配置）
             ICrypto iCrypto;
             Class<? extends ICrypto> iCryptoImpl = annotation.iCrypto();
             if (iCryptoImpl == null || iCryptoImpl == NoneCryptoImpl.class) {
@@ -419,15 +403,15 @@ public class CryptoInterceptor implements Interceptor {
             }
 
             String valueResult;
-            if (cryptoType.equals(CryptoType.DECRYPT)) {
-                valueResult = iCrypto.decrypt(cryptoAlgorithm, String.valueOf(value), key, publicKey, privateKey);
-                if (cryptoProperties.isEnableDetailLog()) {
-                    LOGGER.info("解密属性：{}.{}，解密前：{}，解密后：{}", field.getDeclaringClass().getName(), field.getName(), value, valueResult);
-                }
-            } else {
+            if (cryptoType.equals(CryptoType.ENCRYPT)) {
                 valueResult = iCrypto.encrypt(cryptoAlgorithm, String.valueOf(value), key, publicKey, privateKey);
                 if (cryptoProperties.isEnableDetailLog()) {
                     LOGGER.info("加密属性：{}.{}，加密前：{}，加密后：{}", field.getDeclaringClass().getName(), field.getName(), value, valueResult);
+                }
+            } else {
+                valueResult = iCrypto.decrypt(cryptoAlgorithm, String.valueOf(value), key, publicKey, privateKey);
+                if (cryptoProperties.isEnableDetailLog()) {
+                    LOGGER.info("解密属性：{}.{}，解密前：{}，解密后：{}", field.getDeclaringClass().getName(), field.getName(), value, valueResult);
                 }
             }
             field.set(object, String.valueOf(valueResult));
@@ -436,19 +420,19 @@ public class CryptoInterceptor implements Interceptor {
     }
 
     /**
-     * 获取密文（对Mapper的@Param参数进行加密），使用全局配置文件中的加密参数
+     * 获取密文或明文（对Mapper的@Param参数进行加密/解密），使用全局配置文件中的加解密密钥
      *
-     * @param value 明文
-     * @return 密文
+     * @param value 明文/密文
+     * @return 密文/明文
      * @throws Exception
      */
-    private String getCiphertext(String param, Object value) throws Exception {
+    private String getCiphertextOrPlaintext(String param, Object value, CryptoType cryptoType) throws Exception {
         if (Objects.isNull(value)) {
             return null;
         }
-        // 加密方式
+        // 加解密方式
         String mode = cryptoProperties.getMode();
-        // 加密类全类名
+        // 加解密类全类名
         String cryptoClassName = cryptoProperties.getClassName();
         // 对称加密密钥
         String propertiesKey = cryptoProperties.getKey();
@@ -461,11 +445,19 @@ public class CryptoInterceptor implements Interceptor {
         Class cryptClazz = Class.forName(cryptoClassName);
         ICrypto iCrypto = (ICrypto) cryptClazz.newInstance();
 
-        String ciphertext = iCrypto.encrypt(cryptoAlgorithm, String.valueOf(value), propertiesKey, publicKey, privateKey);
-        if (cryptoProperties.isEnableDetailLog()) {
-            LOGGER.info("加密参数：{}，加密前：{}，加密后：{}", param, value, ciphertext);
+        if (cryptoType == CryptoType.ENCRYPT) {
+            String ciphertext = iCrypto.encrypt(cryptoAlgorithm, String.valueOf(value), propertiesKey, publicKey, privateKey);
+            if (cryptoProperties.isEnableDetailLog()) {
+                LOGGER.info("加密参数：{}，加密前：{}，加密后：{}", param, value, ciphertext);
+            }
+            return ciphertext;
+        } else {
+            String plaintext = iCrypto.decrypt(cryptoAlgorithm, String.valueOf(value), propertiesKey, publicKey, privateKey);
+            if (cryptoProperties.isEnableDetailLog()) {
+                LOGGER.info("解密参数：{}，解密前：{}，解密后：{}", param, value, plaintext);
+            }
+            return plaintext;
         }
-        return ciphertext;
     }
 
     private boolean isBase(Type type) {

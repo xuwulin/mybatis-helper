@@ -91,8 +91,22 @@ public class SysUserController {
         return sysUsers;
     }
 
+    @PostMapping("/listByIdNumberListPageHelper")
+    public Object listByIdNumberListPageHelper(@RequestBody List<String> idNumbers) {
+        PageHelper.startPage(1, 10);
+        List<SysUser> sysUsers = sysUserMapper.listByIdNumberList(idNumbers);
+        return sysUsers;
+    }
+
     @PostMapping("/notIn")
     public Object notIn(@RequestBody List<String> idNumbers) {
+        List<SysUser> sysUsers = sysUserMapper.notIn(idNumbers);
+        return sysUsers;
+    }
+
+    @PostMapping("/notInPageHelper")
+    public Object notInPageHelper(@RequestBody List<String> idNumbers) {
+        PageHelper.startPage(1, 10);
         List<SysUser> sysUsers = sysUserMapper.notIn(idNumbers);
         return sysUsers;
     }

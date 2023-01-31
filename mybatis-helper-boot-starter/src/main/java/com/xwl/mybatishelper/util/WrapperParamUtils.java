@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.xwl.mybatishelper.annotation.CryptoField;
 import com.xwl.mybatishelper.enums.ConditionEnum;
 import com.xwl.mybatishelper.enums.CryptoAlgorithm;
+import com.xwl.mybatishelper.enums.CryptoType;
 import com.xwl.mybatishelper.mapping.ParameterColumnMapping;
 import com.xwl.mybatishelper.mapping.ParameterValueMapping;
 import com.xwl.mybatishelper.properties.CryptoProperties;
@@ -303,10 +304,10 @@ public class WrapperParamUtils {
      *
      * @param mappedStatement  mappedStatement
      * @param obj              mybatis-plus的Wrapper条件
-     * @param cryptoProperties 加密配置
+     * @param cryptoProperties 加解密配置
      * @throws Exception
      */
-    public static void handleWrapper(MappedStatement mappedStatement, Object obj, CryptoProperties cryptoProperties) throws Exception {
+    public static void handleWrapper(MappedStatement mappedStatement, Object obj, CryptoProperties cryptoProperties, CryptoType cryptoType) throws Exception {
         AbstractWrapper wrapper = (AbstractWrapper) obj;
         // 获取查询条件封装真实的参数名，列名
         List<ParameterValueMapping> parameterMappingList = getParameterMappingList(wrapper);
@@ -352,12 +353,12 @@ public class WrapperParamUtils {
                                 if (StrUtil.isBlank(secret)) {
                                     secret = cryptoProperties.getKey();
                                 }
-                                // 加密算法（优先使用注解上的配置）
+                                // 加解密算法（优先使用注解上的配置）
                                 CryptoAlgorithm cryptoAlgorithm = annotation.algorithm();
                                 if (cryptoAlgorithm == null || cryptoAlgorithm == CryptoAlgorithm.NONE) {
                                     cryptoAlgorithm = CryptoAlgorithm.valueOf(cryptoProperties.getMode());
                                 }
-                                // 加密实现（优先使用注解上的配置）
+                                // 加解密实现（优先使用注解上的配置）
                                 ICrypto iCrypto;
                                 Class<? extends ICrypto> iCryptoImpl = annotation.iCrypto();
                                 if (iCryptoImpl == null || iCryptoImpl == NoneCryptoImpl.class) {
@@ -367,11 +368,20 @@ public class WrapperParamUtils {
                                     iCrypto = iCryptoImpl.newInstance();
                                 }
 
-                                // 加密
-                                String encryptValue = iCrypto.encrypt(cryptoAlgorithm, String.valueOf(paramValue), secret, publicKey, privateKey);
-                                paramNameValuePairs.put(paramKey, encryptValue);
-                                if (cryptoProperties.isEnableDetailLog()) {
-                                    LOGGER.info("加密属性：{}.{}，列名：{}，条件：{}，加密前：{}，加密后：{}", field.getDeclaringClass().getName(), property, column, parameterValueMapping.getConditionEnum().getCode(), paramValue, encryptValue);
+                                if (cryptoType == CryptoType.ENCRYPT) {
+                                    // 加密
+                                    String encryptValue = iCrypto.encrypt(cryptoAlgorithm, String.valueOf(paramValue), secret, publicKey, privateKey);
+                                    paramNameValuePairs.put(paramKey, encryptValue);
+                                    if (cryptoProperties.isEnableDetailLog()) {
+                                        LOGGER.info("加密属性：{}.{}，列名：{}，条件：{}，加密前：{}，加密后：{}", field.getDeclaringClass().getName(), property, column, parameterValueMapping.getConditionEnum().getCode(), paramValue, encryptValue);
+                                    }
+                                } else {
+                                    // 解密
+                                    String decryptValue = iCrypto.decrypt(cryptoAlgorithm, String.valueOf(paramValue), secret, publicKey, privateKey);
+                                    paramNameValuePairs.put(paramKey, decryptValue);
+                                    if (cryptoProperties.isEnableDetailLog()) {
+                                        LOGGER.info("解密属性：{}.{}，列名：{}，条件：{}，解密前：{}，解密后：{}", field.getDeclaringClass().getName(), property, column, parameterValueMapping.getConditionEnum().getCode(), paramValue, decryptValue);
+                                    }
                                 }
                             }
                         }

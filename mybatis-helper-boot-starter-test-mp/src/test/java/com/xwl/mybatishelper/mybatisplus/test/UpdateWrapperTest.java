@@ -1,9 +1,5 @@
 package com.xwl.mybatishelper.mybatisplus.test;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -59,7 +55,7 @@ public class UpdateWrapperTest {
     public void testNewUpdateWrapper() {
         String idNumber = "372522195710100019";
         SysUser sysUser = new SysUser();
-        sysUser.setUsername("张三疯");
+        sysUser.setUsername("张三");
         UpdateWrapper<SysUser> wrapper = new UpdateWrapper<>(new SysUser())
                 .eq("id_number", idNumber);
         iSysUserService.update(sysUser, wrapper);
