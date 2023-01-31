@@ -398,6 +398,16 @@ public class SysUserController {
         return pageInfo;
     }
 
+    @GetMapping("/pagehelperByVO")
+    public Object pagehelperByVO() {
+        PageHelper.startPage(1, 10);
+        QueryUserVO vo = new QueryUserVO();
+        vo.setIdNumber("372522195710100019");
+        List<SysUser> list = iSysUserService.testPageHelper(vo);
+        PageInfo pageInfo = new PageInfo(list);
+        return pageInfo;
+    }
+
     @PostMapping("/listByUsernames")
     public Object listByUsernames(@RequestBody List<String> usernames) {
         List<SysUser> sysUsers = iSysUserService.listByUsernames(usernames);

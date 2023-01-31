@@ -187,4 +187,12 @@ public interface ISysUserService extends IService<SysUser> {
      * @return
      */
     OutExtendsVO testExtendsVo(ParamExtendsVO vo);
+
+    /**
+     * pageHelper分页
+     *
+     * @param vo
+     * @return
+     */
+    List<SysUser> testPageHelper(QueryUserVO vo);
 }

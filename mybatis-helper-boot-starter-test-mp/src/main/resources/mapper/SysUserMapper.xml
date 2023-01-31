@@ -115,4 +115,8 @@
     <select id="testExtendsVo" resultType="com.xwl.mybatishelper.mybatisplus.vo.OutExtendsVO">
         SELECT * FROM sys_user WHERE id_number = #{vo.idNumber} AND account = #{vo.account} AND username = #{vo.username} AND password = #{vo.password}
     </select>
+
+    <select id="testPageHelper" resultType="com.xwl.mybatishelper.mybatisplus.entity.SysUser">
+        SELECT * FROM sys_user WHERE id_number = #{vo.idNumber}
+    </select>
 </mapper>

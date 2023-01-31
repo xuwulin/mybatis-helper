@@ -2,6 +2,8 @@ package com.xwl.mybatishelper.mybatisplus.test;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
 import com.xwl.mybatishelper.mybatisplus.service.ISysUserService;
 import com.xwl.mybatishelper.mybatisplus.vo.OutExtendsVO;
@@ -13,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author xwl
@@ -51,6 +54,17 @@ public class QueryVoTest {
         vo.setPassword("123456");
         OutExtendsVO outVO = iSysUserService.testExtendsVo(vo);
         String pretty = JSON.toJSONString(outVO, SerializerFeature.PrettyFormat);
+        log.info("query result:\n{}", pretty);
+    }
+
+    @Test
+    public void testPageHelper() {
+        PageHelper.startPage(1, 10);
+        QueryUserVO vo = new QueryUserVO();
+        vo.setIdNumber("372522195710100019");
+        List<SysUser> list = iSysUserService.testPageHelper(vo);
+        PageInfo pageInfo = new PageInfo(list);
+        String pretty = JSON.toJSONString(pageInfo, SerializerFeature.PrettyFormat);
         log.info("query result:\n{}", pretty);
     }
 }

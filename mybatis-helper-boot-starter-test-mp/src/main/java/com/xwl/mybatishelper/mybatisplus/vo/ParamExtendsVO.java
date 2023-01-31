@@ -8,7 +8,7 @@ import lombok.Data;
  * @since 2022/12/28 14:33
  */
 @Data
-public class ParamExtendsVO extends BaseVO{
+public class ParamExtendsVO extends BaseVO {
 
     @CryptoField
     private String idNumber;

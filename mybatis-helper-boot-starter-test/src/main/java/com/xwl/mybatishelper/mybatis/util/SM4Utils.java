@@ -105,7 +105,7 @@ public class SM4Utils {
     }
 
     public static void main(String[] args) {
-        String enc = encryptData_ECB("510623199310124817");
+        String enc = encryptData_ECB("123456");
         System.out.println(enc);
         System.out.println(decryptData_ECB(enc));
     }

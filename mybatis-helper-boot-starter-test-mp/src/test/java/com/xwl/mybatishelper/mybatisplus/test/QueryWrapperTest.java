@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
 import com.xwl.mybatishelper.mybatisplus.service.ISysUserService;
 import lombok.extern.slf4j.Slf4j;
@@ -153,6 +155,18 @@ public class QueryWrapperTest {
                 .in(SysUser::getIdNumber, idNumbers);
         IPage<SysUser> result = iSysUserService.page(page, wrapper);
         String pretty = JSON.toJSONString(result, SerializerFeature.PrettyFormat);
+        log.info("query result:\n{}", pretty);
+    }
+
+    @Test
+    public void testLambdaQueryWrapperPageHelper() {
+        PageHelper.startPage(1, 2);
+        List<String> idNumbers = Arrays.asList("372522195710100019", "371521198411051559");
+        LambdaQueryWrapper<SysUser> wrapper = Wrappers.lambdaQuery(new SysUser())
+                .in(SysUser::getIdNumber, idNumbers);
+        List<SysUser> list = iSysUserService.list(wrapper);
+        PageInfo pageInfo = new PageInfo(list);
+        String pretty = JSON.toJSONString(pageInfo, SerializerFeature.PrettyFormat);
         log.info("query result:\n{}", pretty);
     }
 }

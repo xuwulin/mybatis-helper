@@ -129,4 +129,9 @@ public class ISysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> imp
     public OutExtendsVO testExtendsVo(ParamExtendsVO vo) {
         return baseMapper.testExtendsVo(vo);
     }
+
+    @Override
+    public List<SysUser> testPageHelper(QueryUserVO vo) {
+        return baseMapper.testPageHelper(vo);
+    }
 }

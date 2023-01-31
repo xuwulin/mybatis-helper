@@ -110,8 +110,8 @@ public class CryptoInterceptor implements Interceptor {
         CacheKey cacheKey;
         BoundSql boundSql;
 
-        // 处理参数作为条件查询需要加密
-        handleParam(mappedStatement, paramObj);
+        // 处理参数，查询参数加密
+        HashMap<Field, Object> fieldMap = handleParam(mappedStatement, paramObj);
 
         // 由于逻辑关系，只会进入一次
         if (args.length == 4) {
@@ -135,9 +135,10 @@ public class CryptoInterceptor implements Interceptor {
             handleResult(result);
         }
 
+        // 处理参数，查询/更新参数解密，还原参数
+        handleParam(fieldMap);
         return resultList;
     }
-
 
     /**
      * 修改操作处理
@@ -148,24 +149,27 @@ public class CryptoInterceptor implements Interceptor {
      */
     private Object updateHandle(Invocation invocation) throws Exception {
         // 处理参数
-        handleParam((MappedStatement) invocation.getArgs()[0], invocation.getArgs()[1]);
-        return invocation.proceed();
+        HashMap<Field, Object> fieldMap = handleParam((MappedStatement) invocation.getArgs()[0], invocation.getArgs()[1]);
+        Object proceed = invocation.proceed();
+        // 处理参数，查询/更新参数解密，还原参数
+        handleParam(fieldMap);
+        return proceed;
     }
 
     /**
-     * 处理参数
+     * 处理参数，查询/更新参数加密
      *
      * @param mappedStatement mappedStatement
      * @param obj             参数信息
      * @throws Exception
      */
-    private void handleParam(MappedStatement mappedStatement, Object obj) throws Exception {
+    private HashMap<Field, Object> handleParam(MappedStatement mappedStatement, Object obj) throws Exception {
         HashMap<Field, Object> fieldMap = new HashMap<>();
-        // 判断参数类型，如果是mybatis-plus的xxx.getById(id)这种查询，参数类型就不是MapperMethod.ParamMap
-        if (obj instanceof MapperMethod.ParamMap) {
+        // 判断参数类型，如果是mybatis-plus的xxxService.getById(id)/xxxMapper.selectById(id)这种查询，参数类型就不是MapperMethod.ParamMap
+        if (obj instanceof HashMap) {
             // pagehelper分页插件，分页查询，会拦截两次，第一次查总数，不包含分页参数：参数类型是MapperMethod.ParamMap；第二次查询结果集，包含分页参数：参数类型会转成HashMap
             // mybatis-plus分页插件，分页查询，只会拦截一次（包含查询参数和分页参数，查询总数和结果集），参数类型是MapperMethod.ParamMap
-            MapperMethod.ParamMap paramMap = (MapperMethod.ParamMap) obj;
+            HashMap paramMap = (HashMap) obj;
             Set keySet = paramMap.keySet();
             for (Object key : keySet) {
                 String keyStr = (String) key;
@@ -215,7 +219,29 @@ public class CryptoInterceptor implements Interceptor {
         // 加密
         fieldMap.keySet().forEach(key -> {
             try {
+                if (cryptoProperties.isEnableDetailLog()) {
+                    LOGGER.info("参数加密...");
+                }
                 encryptOrDecrypt(key, fieldMap.get(key), CryptoType.ENCRYPT);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+        });
+        return fieldMap;
+    }
+
+    /**
+     * 处理参数，查询/更新参数解密，还原参数
+     *
+     * @param fieldMap 参数
+     */
+    private void handleParam(HashMap<Field, Object> fieldMap) {
+        fieldMap.keySet().forEach(key -> {
+            try {
+                if (cryptoProperties.isEnableDetailLog()) {
+                    LOGGER.info("参数解密...");
+                }
+                encryptOrDecrypt(key, fieldMap.get(key), CryptoType.DECRYPT);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
@@ -268,6 +294,9 @@ public class CryptoInterceptor implements Interceptor {
         // 解密
         fieldMap.keySet().forEach(key -> {
             try {
+                if (cryptoProperties.isEnableDetailLog()) {
+                    LOGGER.info("查询结果解密...");
+                }
                 encryptOrDecrypt(key, fieldMap.get(key), CryptoType.DECRYPT);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);

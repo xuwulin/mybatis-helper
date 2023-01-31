@@ -187,4 +187,12 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @return
      */
     OutExtendsVO testExtendsVo(@Param("vo") ParamExtendsVO vo);
+
+    /**
+     * pageHelper分页
+     *
+     * @param vo
+     * @return
+     */
+    List<SysUser> testPageHelper(@Param("vo") QueryUserVO vo);
 }
