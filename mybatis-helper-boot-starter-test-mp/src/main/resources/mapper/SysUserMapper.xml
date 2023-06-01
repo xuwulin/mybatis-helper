@@ -78,13 +78,26 @@
         AND password = #{enc_password}
     </select>
 
-    <select id="listByIdNumbersAndPassword3" resultType="com.xwl.mybatishelper.mybatisplus.entity.SysUser">
+    <select id="listByIdNumbersAndAccount" resultType="com.xwl.mybatishelper.mybatisplus.entity.SysUser">
         SELECT * FROM sys_user
         WHERE id_number IN
         <foreach collection="enc_idNumbers" item="item" open="(" close=")" separator=",">
             #{item}
         </foreach>
         AND account = #{account}
+    </select>
+
+    <select id="listByIdNumbersAndAccounts" resultType="com.xwl.mybatishelper.mybatisplus.entity.SysUser">
+        SELECT * FROM sys_user
+        WHERE id_number IN
+        <foreach collection="enc_idNumbers" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+          AND password = #{enc_password}
+          AND account IN
+        <foreach collection="accounts" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
     </select>
 
     <select id="listByUsers" resultType="com.xwl.mybatishelper.mybatisplus.entity.SysUser">
@@ -119,4 +132,5 @@
     <select id="testPageHelper" resultType="com.xwl.mybatishelper.mybatisplus.entity.SysUser">
         SELECT * FROM sys_user WHERE id_number != #{vo.idNumber}
     </select>
+
 </mapper>

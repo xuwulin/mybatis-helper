@@ -88,6 +88,26 @@ public interface SysUserMapper {
     List<SysUser> listByIdNumberList(@Param("enc_idNumbers") List<String> idNumbers);
 
     /**
+     * 根据用户密码和id列表查询
+     *
+     * @param password 用户密码
+     * @param ids      用户id
+     * @return
+     */
+    List<SysUser> listByPasswordAndIds(@Param("enc_password") String password,
+                                       @Param("ids") List<String> ids);
+
+    /**
+     * 根据用户密码和身份证号码列表查询
+     *
+     * @param password  用户密码
+     * @param idNumbers 用户id
+     * @return
+     */
+    List<SysUser> listByPasswordAndIdNumbers(@Param("enc_password") String password,
+                                             @Param("enc_idNumbers") List<String> idNumbers);
+
+    /**
      * 根据用户身份证号码列表查询
      *
      * @param idNumbers 用户身份证号码

@@ -195,4 +195,13 @@ public interface ISysUserService extends IService<SysUser> {
      * @return
      */
     List<SysUser> testPageHelper(QueryUserVO vo);
+
+    /**
+     * 根据身份证号码和手机号查询
+     *
+     * @param idNumbers 身份证号码集合
+     * @param accounts  手机号集合
+     * @return
+     */
+    List<SysUser> listByIdNumbersAndAccounts(List<String> idNumbers, String password, List<String> accounts);
 }

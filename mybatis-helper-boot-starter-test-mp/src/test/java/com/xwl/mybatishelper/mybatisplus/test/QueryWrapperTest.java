@@ -136,6 +136,16 @@ public class QueryWrapperTest {
     }
 
     @Test
+    public void testLambdaQueryWrapperInNotEnc() {
+        List<String> ids = Arrays.asList("1", "2", "3");
+        LambdaQueryWrapper<SysUser> wrapper = Wrappers.lambdaQuery(new SysUser())
+                .in(SysUser::getId, ids);
+        List<SysUser> sysUsers = iSysUserService.list(wrapper);
+        String pretty = JSON.toJSONString(sysUsers, SerializerFeature.PrettyFormat);
+        log.info("query result:\n{}", pretty);
+    }
+
+    @Test
     public void testLambdaQueryWrapperInAndEq() {
         String account = "15888888888";
         List<String> idNumbers = Arrays.asList("372522195710100019", "371521198411051559");

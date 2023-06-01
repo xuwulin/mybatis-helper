@@ -46,6 +46,24 @@
         </foreach>
     </select>
 
+    <select id="listByPasswordAndIds" resultType="com.xwl.mybatishelper.mybatis.entity.SysUser">
+        SELECT * FROM sys_user
+        WHERE password = #{enc_password}
+          AND id IN
+        <foreach collection="ids" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="listByPasswordAndIdNumbers" resultType="com.xwl.mybatishelper.mybatis.entity.SysUser">
+        SELECT * FROM sys_user
+        WHERE password = #{enc_password}
+          AND id_number IN
+        <foreach collection="enc_idNumbers" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
     <select id="notIn" resultType="com.xwl.mybatishelper.mybatis.entity.SysUser">
         SELECT * FROM sys_user WHERE id_number NOT IN
         <foreach collection="enc_idNumbers" item="item" open="(" close=")" separator=",">
@@ -59,4 +77,5 @@
             #{item}
         </foreach>
     </select>
+
 </mapper>

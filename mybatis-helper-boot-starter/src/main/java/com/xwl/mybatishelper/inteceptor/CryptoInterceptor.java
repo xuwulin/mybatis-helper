@@ -12,8 +12,6 @@ import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.mapping.ParameterMode;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -233,6 +231,9 @@ public class CryptoInterceptor implements Interceptor {
 
     /**
      * 处理boundSql，对查询条件有IN/NOT IN的sql特殊处理
+     * 如果参数类型为Collection，并且要对其元素进行加解密，只能对boundSql中的 parameterMapping 中的 property(__frch_item_) 值进行修改才有效
+     * parameterMapping中的元素顺序就是sql参数的顺序
+     * IN条件元素的property 为__frch_item_0、__frch_item_1、__frch_item_2。。。依次递增，不管有几个IN条件
      *
      * @param boundSql   boundSql
      * @param cryptoType 加解密方式
@@ -243,21 +244,38 @@ public class CryptoInterceptor implements Interceptor {
         if (parameterObject instanceof HashMap) {
             HashMap paramMap = (HashMap) parameterObject;
             Set keySet = paramMap.keySet();
+            // __frch_item_ 下标，从0开始
+            int index = 0;
             for (Object key : keySet) {
                 String keyStr = (String) key;
-                if (keyStr.startsWith(cryptoProperties.getParamPrefix())) {
-                    List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
-                    for (ParameterMapping parameterMapping : parameterMappings) {
-                        String property = parameterMapping.getProperty();
-                        ParameterMode mode = parameterMapping.getMode();
-                        if (mode == ParameterMode.IN) {
+                Object value = paramMap.get(keyStr);
+                if (value != null && value instanceof Collection) {
+                    int size = ((Collection<?>) value).size();
+                    if (keyStr.startsWith(cryptoProperties.getParamPrefix())) {
+                        for (int i = 0; i < size; i++) {
+                            String property = "__frch_item_" + index;
                             Object val = boundSql.getAdditionalParameter(property);
                             if (Objects.nonNull(val)) {
                                 boundSql.setAdditionalParameter(property, getCiphertextOrPlaintext(property, val, cryptoType));
                             }
+                            index++;
+
+                            /*List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+                            for (ParameterMapping parameterMapping : parameterMappings) {
+                                String property = parameterMapping.getProperty();
+                                ParameterMode mode = parameterMapping.getMode();
+                                if (mode == ParameterMode.IN) {
+                                    Object val = boundSql.getAdditionalParameter(property);
+                                    if (Objects.nonNull(val)) {
+                                        boundSql.setAdditionalParameter(property, getCiphertextOrPlaintext(property, val, cryptoType));
+                                    }
+                                }
+                            }
+                            break;*/
                         }
+                    } else if (!keyStr.startsWith("param")) {
+                        index = index + size - 1;
                     }
-                    break;
                 }
             }
         }
@@ -422,7 +440,9 @@ public class CryptoInterceptor implements Interceptor {
     /**
      * 获取密文或明文（对Mapper的@Param参数进行加密/解密），使用全局配置文件中的加解密密钥
      *
-     * @param value 明文/密文
+     * @param param      参数名
+     * @param value      明文/密文
+     * @param cryptoType 加解密方式
      * @return 密文/明文
      * @throws Exception
      */

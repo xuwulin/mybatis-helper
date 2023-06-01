@@ -145,8 +145,19 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @param account   账号
      * @return
      */
-    List<SysUser> listByIdNumbersAndPassword3(@Param("enc_idNumbers") List<String> idNumbers,
-                                              @Param("account") String account);
+    List<SysUser> listByIdNumbersAndAccount(@Param("enc_idNumbers") List<String> idNumbers,
+                                            @Param("account") String account);
+
+    /**
+     * 根据用户身份证号码和账号查询
+     *
+     * @param idNumbers 身份证号码集合
+     * @param accounts  账号集合
+     * @return
+     */
+    List<SysUser> listByIdNumbersAndAccounts(@Param("enc_idNumbers") List<String> idNumbers,
+                                             @Param("enc_password") String password,
+                                             @Param("accounts") List<String> accounts);
 
     /**
      * 根据users查询

@@ -9,6 +9,7 @@ import com.xwl.mybatishelper.mybatis.vo.ParamVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,7 +88,19 @@ public class SysUserController {
 
     @PostMapping("/listByIdNumberList")
     public Object listByIdNumberList(@RequestBody List<String> idNumbers) {
-        List<SysUser> sysUsers = sysUserMapper.listByIdNumberList(idNumbers);
+        List<SysUser> sysUsers = sysUserMapper.listByIdNumberList(Arrays.asList("372522195710100019", "371521198411051559"));
+        return sysUsers;
+    }
+
+    @PostMapping("/listByPasswordAndIds")
+    public Object listByPasswordAndIds(@RequestBody List<String> ids) {
+        List<SysUser> sysUsers = sysUserMapper.listByPasswordAndIds("123456", Arrays.asList("1", "2", "3"));
+        return sysUsers;
+    }
+
+    @PostMapping("/listByPasswordAndIdNumbers")
+    public Object listByPasswordAndIdNumbers(@RequestBody List<String> ids) {
+        List<SysUser> sysUsers = sysUserMapper.listByPasswordAndIdNumbers("123456", Arrays.asList("372522195710100019", "371521198411051559"));
         return sysUsers;
     }
 

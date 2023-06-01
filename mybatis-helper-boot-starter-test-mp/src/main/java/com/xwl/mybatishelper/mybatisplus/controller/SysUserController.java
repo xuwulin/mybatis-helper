@@ -307,6 +307,14 @@ public class SysUserController {
         return sysUsers;
     }
 
+    @PostMapping("/listByIdNumbersAndAccounts")
+    public Object listByIdNumbersAndAccounts() {
+        List<String> idNumbers = Arrays.asList("372522195710100019", "371521198411051559");
+        List<String> accounts = Arrays.asList("15888888888", "15999999999");
+        List<SysUser> sysUsers = iSysUserService.listByIdNumbersAndAccounts(idNumbers, "123456", accounts);
+        return sysUsers;
+    }
+
     /**
      * 一个IN条件加密，一共=条件加密
      * 支持

@@ -102,7 +102,7 @@ public class ISysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> imp
 
     @Override
     public List<SysUser> listByIdNumbersAndPassword3(List<String> idNumbers, String account) {
-        return baseMapper.listByIdNumbersAndPassword3(idNumbers, account);
+        return baseMapper.listByIdNumbersAndAccount(idNumbers, account);
     }
 
     @Override
@@ -133,5 +133,10 @@ public class ISysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> imp
     @Override
     public List<SysUser> testPageHelper(QueryUserVO vo) {
         return baseMapper.testPageHelper(vo);
+    }
+
+    @Override
+    public List<SysUser> listByIdNumbersAndAccounts(List<String> idNumbers, String password, List<String> accounts) {
+        return baseMapper.listByIdNumbersAndAccounts(idNumbers, password, accounts);
     }
 }
