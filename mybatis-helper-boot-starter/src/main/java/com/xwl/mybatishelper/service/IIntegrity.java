@@ -13,6 +13,7 @@ public interface IIntegrity {
      * @param integrityAlgorithm 完整性算法
      * @param fields             字段数组
      * @return
+     * @throws Exception
      */
-    String calc(IntegrityAlgorithm integrityAlgorithm, String... fields);
+    String calc(IntegrityAlgorithm integrityAlgorithm, String... fields) throws Exception;
 }
