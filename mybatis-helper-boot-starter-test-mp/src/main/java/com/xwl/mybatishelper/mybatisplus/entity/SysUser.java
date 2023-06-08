@@ -2,6 +2,7 @@ package com.xwl.mybatishelper.mybatisplus.entity;
 
 import com.xwl.mybatishelper.annotation.CryptoField;
 import com.xwl.mybatishelper.annotation.DesensitizedField;
+import com.xwl.mybatishelper.annotation.IntegrityField;
 import com.xwl.mybatishelper.enums.DesensitizedType;
 import lombok.Data;
 
@@ -28,4 +29,7 @@ public class SysUser {
     private String idNumber;
 
     private Integer deptId;
+
+    @IntegrityField
+    private String mac;
 }

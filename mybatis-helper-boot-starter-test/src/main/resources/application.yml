@@ -42,6 +42,13 @@ mybatis-helper:
     publicKey: 3059301306072a8648ce3d020106082a811ccf5501822d03420004e6d02503196bda21356390f43e324aa9cb42dbe64204ac4d9e1652fe055e4636702f84f376a54af81ca165d355f3e68d137702b9c715b4ecf70d50b65d9d6e78
     # SM2非对称加密私钥
     privateKey: 308193020100301306072a8648ce3d020106082a811ccf5501822d047930770201010420169d98f96e7a3deb145671dd04eefdf54b3c2196ca5569b5fb96a9ff5abe957da00a06082a811ccf5501822da14403420004e6d02503196bda21356390f43e324aa9cb42dbe64204ac4d9e1652fe055e4636702f84f376a54af81ca165d355f3e68d137702b9c715b4ecf70d50b65d9d6e78
+  # 完整性保护
+  integrity:
+    # 是否开启完整性保护值计算日志（默认false），开启后info会记录完整性保护值计算日志
+    enable-detail-log: true
+    mode: MD5
+    # 完整性保护计算类全类名
+    class-name: com.xwl.mybatishelper.service.impl.DefaultIntegrityImpl
   # 脱敏
   desensitized:
     # 是否开启脱敏日志（默认false），开启后info会记录加脱敏详情

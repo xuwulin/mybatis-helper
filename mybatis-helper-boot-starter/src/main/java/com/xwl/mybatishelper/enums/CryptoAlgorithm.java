@@ -1,6 +1,8 @@
 package com.xwl.mybatishelper.enums;
 
 /**
+ * 加解密算法
+ *
  * @author xwl
  * @since 2022/12/7 10:56
  */
