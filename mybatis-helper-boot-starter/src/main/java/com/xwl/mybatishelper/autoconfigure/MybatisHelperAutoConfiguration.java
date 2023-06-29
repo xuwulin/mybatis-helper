@@ -8,6 +8,7 @@ import com.xwl.mybatishelper.properties.DesensitizedProperties;
 import com.xwl.mybatishelper.properties.IntegrityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ public class MybatisHelperAutoConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(MybatisHelperAutoConfiguration.class);
 
     @Bean
+    @ConditionalOnProperty(prefix = "mybatis-helper.crypto", name = "enabled", havingValue = "true")
     public CryptoInterceptor cryptoInterceptor() {
         LOGGER.info("==>com.xwl.mybatishelper.autoconfigure.MybatisHelperAutoConfiguration：MybatisHelper自动配置，注册CryptoInterceptor");
         return new CryptoInterceptor();
