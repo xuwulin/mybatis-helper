@@ -1,6 +1,7 @@
 package com.xwl.mybatishelper.annotation;
 
 import com.xwl.mybatishelper.enums.IntegrityAlgorithm;
+import com.xwl.mybatishelper.enums.IntegrityMode;
 import com.xwl.mybatishelper.service.IIntegrity;
 import com.xwl.mybatishelper.service.impl.NoneIntegrityImpl;
 
@@ -18,6 +19,14 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE})
 public @interface IntegrityField {
+
+    /**
+     * 完整性计算模式
+     * 注解默认值为IntegrityMode.ALL，针对整条记录值（不包含原mac值，在计算新mac值时会自动将原记录中的mac值置空）进行计算
+     * 当注解值不为IntegrityMode.CRYPTO_FIELD时，针对加密字段进行完整性计算
+     * @return
+     */
+    IntegrityMode mode() default IntegrityMode.ALL;
 
     /**
      * 完整性保护算法

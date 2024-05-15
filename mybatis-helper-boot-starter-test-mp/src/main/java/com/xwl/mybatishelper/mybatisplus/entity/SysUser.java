@@ -1,9 +1,8 @@
 package com.xwl.mybatishelper.mybatisplus.entity;
 
 import com.xwl.mybatishelper.annotation.CryptoField;
-import com.xwl.mybatishelper.annotation.DesensitizedField;
 import com.xwl.mybatishelper.annotation.IntegrityField;
-import com.xwl.mybatishelper.enums.DesensitizedType;
+import com.xwl.mybatishelper.enums.IntegrityMode;
 import lombok.Data;
 
 /**
@@ -14,22 +13,22 @@ import lombok.Data;
 public class SysUser {
     private Integer id;
 
-    @DesensitizedField
+//    @DesensitizedField
     private String account;
 
     @CryptoField
-    @DesensitizedField(type = DesensitizedType.PASSWORD)
+//    @DesensitizedField(type = DesensitizedType.PASSWORD)
     private String password;
 
-    @DesensitizedField(type = DesensitizedType.CHINESE_NAME)
+//    @DesensitizedField(type = DesensitizedType.CHINESE_NAME)
     private String username;
 
     @CryptoField
-    @DesensitizedField
+//    @DesensitizedField
     private String idNumber;
 
     private Integer deptId;
 
-    @IntegrityField
+    @IntegrityField(mode = IntegrityMode.CRYPTO_FIELD)
     private String mac;
 }

@@ -22,6 +22,15 @@ public class UpdateWrapperTest {
     private ISysUserService iSysUserService;
 
     @Test
+    public void updateById() {
+        SysUser byId = iSysUserService.getById("1");
+        byId.setPassword("123456");
+        byId.setUsername("张三李四");
+        iSysUserService.updateById(byId);
+        System.out.println();
+    }
+
+    @Test
     public void testLambdaUpdateWrapper() {
         String idNumber = "372522195710100019";
         SysUser sysUser = new SysUser();

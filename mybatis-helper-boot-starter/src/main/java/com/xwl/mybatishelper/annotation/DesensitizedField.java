@@ -7,7 +7,7 @@ import com.xwl.mybatishelper.enums.DesensitizedType;
 import java.lang.annotation.*;
 
 /**
- * 字段脱敏注解
+ * 字段脱敏注解，不能用于实体类，只能用于查询返回的VO类中，用于实体类上会影响update功能，update是脱敏的值
  *
  * @author xwl
  * @since 2022/12/15 13:15

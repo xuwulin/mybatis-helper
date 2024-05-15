@@ -1,11 +1,15 @@
 package com.xwl.mybatishelper.inteceptor;
 
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.xwl.mybatishelper.annotation.CryptoField;
 import com.xwl.mybatishelper.annotation.IntegrityField;
 import com.xwl.mybatishelper.enums.IntegrityAlgorithm;
+import com.xwl.mybatishelper.enums.IntegrityMode;
 import com.xwl.mybatishelper.properties.IntegrityProperties;
 import com.xwl.mybatishelper.service.IIntegrity;
 import com.xwl.mybatishelper.service.impl.NoneIntegrityImpl;
+import com.xwl.mybatishelper.util.FieldUtils;
 import com.xwl.mybatishelper.util.WrapperParamUtils;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
@@ -198,9 +202,29 @@ public class IntegrityInterceptor implements Interceptor {
                 // 使用注解上的完整性保护算法
                 iIntegrity = integrityImpl.newInstance();
             }
-            String result = iIntegrity.calc(integrityAlgorithm, JSONUtil.toJsonStr(object));
+
+            JSONObject jsonObject;
+            if (annotation.mode() == IntegrityMode.CRYPTO_FIELD) {
+                // 对类中标注 @CryptoField 注解的字段进行完整性计算
+                Class<?> clazz = field.getDeclaringClass();
+                // 获取类上标注 @CryptoField 注解的字段
+                List<Field> cryptoFieldList = FieldUtils.findAnnotatedFields(clazz, CryptoField.class);
+                // 获取类上标注 @CryptoField 注解的字段的jsonObject
+                jsonObject = FieldUtils.getAnnotatedFieldJsonObject(cryptoFieldList, object);
+            } else {
+                // 对类中所有字段进行完整性计算（排除原mac值）
+                jsonObject = JSONUtil.parseObj(object);
+                if (Objects.nonNull(jsonObject)) {
+                    Object o = jsonObject.get(field.getName());
+                    if (Objects.nonNull(o)) {
+                        jsonObject.set(field.getName(), null);
+                    }
+                }
+            }
+
+            String result = iIntegrity.calc(integrityAlgorithm, JSONUtil.toJsonStr(jsonObject));
             if (integrityProperties.isEnableDetailLog()) {
-                LOGGER.info("完整性保护计算，参数：{}，结果：{}", JSONUtil.toJsonStr(object), result);
+                LOGGER.info("完整性保护计算，计算模式：{}，参数：{}，结果：{}", annotation.mode(), JSONUtil.toJsonStr(jsonObject), result);
             }
             field.set(object, String.valueOf(result));
             field.setAccessible(accessible);

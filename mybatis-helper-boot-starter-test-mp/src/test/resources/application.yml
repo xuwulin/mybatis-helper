@@ -40,6 +40,7 @@ pagehelper:
 mybatis-helper:
   # 加解密
   crypto:
+    enabled: true
     # 是否开启加解密日志（默认false），开启后info会记录加解密详情
     enable-detail-log: true
     # 加密方式（默认SM4）

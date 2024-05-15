@@ -12,9 +12,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class CryptoProperties {
 
     /**
-     * 是否开启加解密功能
+     * 是否开启加解密功能（默认true）
      */
-    private boolean enabled;
+    private boolean enabled = true;
 
     /**
      * 是否开启加解密日志（默认false），开启后info会记录加解密详情
