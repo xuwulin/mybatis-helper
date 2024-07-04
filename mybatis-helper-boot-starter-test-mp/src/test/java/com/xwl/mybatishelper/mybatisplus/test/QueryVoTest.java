@@ -2,6 +2,8 @@ package com.xwl.mybatishelper.mybatisplus.test;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.xwl.mybatishelper.mybatisplus.entity.SysUser;
@@ -10,11 +12,13 @@ import com.xwl.mybatishelper.mybatisplus.vo.OutExtendsVO;
 import com.xwl.mybatishelper.mybatisplus.vo.OutVO;
 import com.xwl.mybatishelper.mybatisplus.vo.ParamExtendsVO;
 import com.xwl.mybatishelper.mybatisplus.vo.QueryUserVO;
+import com.xwl.mybatishelper.util.WrapperUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -66,5 +70,15 @@ public class QueryVoTest {
         PageInfo pageInfo = new PageInfo(list);
         String pretty = JSON.toJSONString(pageInfo, SerializerFeature.PrettyFormat);
         log.info("query result:\n{}", pretty);
+    }
+
+    @Test
+    public void testAndInLineOr() {
+        LambdaQueryWrapper<SysUser> wrapper = Wrappers.lambdaQuery(SysUser.class);
+        WrapperUtils.andInlineOr(wrapper, Arrays.asList("15888888888", "15999999999"), SysUser::getAccount);
+        WrapperUtils.andInlineOr(wrapper, Arrays.asList("李四", "张三李四"), SysUser::getUsername);
+        System.out.println(wrapper.getTargetSql());
+        List<SysUser> list = iSysUserService.list(wrapper);
+        System.out.println(list);
     }
 }

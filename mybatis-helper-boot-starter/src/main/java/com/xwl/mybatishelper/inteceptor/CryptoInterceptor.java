@@ -48,6 +48,13 @@ public class CryptoInterceptor implements Interceptor {
     @Resource
     private CryptoProperties cryptoProperties;
 
+    /**
+     * 拦截器执行方法
+     *
+     * @param invocation 多个参数的封装类
+     * @return
+     * @throws Exception
+     */
     @Override
     public Object intercept(Invocation invocation) throws Exception {
         Method method = invocation.getMethod();
@@ -505,11 +512,23 @@ public class CryptoInterceptor implements Interceptor {
                 || object instanceof ChronoLocalDate;
     }
 
+    /**
+     * 将目标对象生成代理对象，添加到拦截器链中
+     *
+     * @param target 目标对象
+     * @return
+     */
     @Override
     public Object plugin(Object target) {
+        // wrap将目标对象，基于jdk动态代理生成代理对象
         return Plugin.wrap(target, this);
     }
 
+    /**
+     * 设置属性
+     *
+     * @param properties 插件初始化的时候，会设置的一些值的属性集合
+     */
     @Override
     public void setProperties(Properties properties) {
     }
